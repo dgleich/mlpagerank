@@ -110,9 +110,29 @@ valSol.m
 This function check if the solution satisfies the original equation with
 tolerance of 1e-10.
 
+====================================
 
+oneTwoStepChain.m
 
+This function computes the eigenvector X of the following one-step chain and
+two-step chain.
 
+(alpha\*P + (1-alpha)\*V)\*X1 = X1
+
+(alpha\*P + (1-alpha)\*V)(alpha\*P + (1-alpha)\*V)\*X2 = X2
+
+twoStepChainSimplified.m
+
+This function assumes X can be written in the form X = kron(x, x) and computes
+x. x can be viewed as the solution of the following equation.
+
+alpha\*R\*(alpha\*P + (1-alpha)\*V)\*kron(x, x) + (1-alpha)\*v = x
+
+convertR2P.m
+
+P is the n^2-by-n^2 transition matrix derived from the transition tensor. R is
+the n-by-n^2 transition matrix used in the tensorPageRank problem. This function
+provides a way to convert R to P.
 
 ====================================
 
