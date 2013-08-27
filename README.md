@@ -126,6 +126,9 @@ example.mat
 
 This file contains 4 example 3-by-3-by-3 tensors, R1, R2, R3, and R4.
 
+These examples are used to generate the triangle plots for the kappa values and
+second largest eigenvalues of Jacobians.
+
 counterExample.mat
 
 This file contains a 6-by-6-by-6 tensor that has 3 different eigenvectors for
