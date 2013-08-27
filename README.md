@@ -1,6 +1,6 @@
-Authors: Yongyang Yu (yu163@purdue.edu)
+###Yongyang Yu (yu163@purdue.edu)
 
-David F. Gleich
+###David F. Gleich
 
 =============================
 
@@ -85,6 +85,61 @@ x_k) + (1-alpha)\*v
 Since Newton's method is a second order method, it is expected that the
 convergence should be fast if the initial point is well chosen.
 
-===========================
+===================================
 
+### Code
+
+The code is implemented in Matlab. The core functions are listed below,
+
+tensorRank.m
+
+This function implements the shifted iterative method with default tolerance of
+1e-12. The shift factor gamma can be specified by the user or 0.5 by default.
+
+tensorRankNonShift.m
+
+This function implements the non-shift iterative method with default tolerance
+of 1e-12.
+
+tensorNewton.m
+
+This function implements the Newton's method with default tolerance of 1e-12.
+
+
+
+
+
+
+
+====================================
+
+### Test Cases
+
+The test_cases directory contains special examples we have discovered. The
+examples are collected by testing all 3-by-3-by-3 transition tensors whose
+elements are 0 or 1 and randomly sampling of 6-by-6-by-6 tensors.
+
+example.mat
+
+This file contains 4 example 3-by-3-by-3 tensors, R1, R2, R3, and R4.
+
+counterExample.mat
+
+This file contains a 6-by-6-by-6 tensor that has 3 different eigenvectors for
+alpha=0.99. This example has multiple solutions when alpha \> 0.5.
+
+6x6x6_slow_converge_shift.mat
+
+This file contains two 6-by-6-by-6 tensors. The first does not converge for
+shifted iterative method and the second converge very slowly for gamma=0.5; y1
+and y2 are solutions to the two problem.
+
+6x6x6_not_converge_non_shift.mat
+
+This file contains two 6-by-6-by-6 tensors. Both do not converge for non-shift
+method and shifted method. The solution x1 and x2 are computed by Newton's
+method with randomly choice of the initial starting point.
+
+  
+  
 
