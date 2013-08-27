@@ -105,7 +105,10 @@ tensorNewton.m
 
 This function implements the Newton's method with default tolerance of 1e-12.
 
+valSol.m
 
+This function check if the solution satisfies the original equation with
+tolerance of 1e-10.
 
 
 
