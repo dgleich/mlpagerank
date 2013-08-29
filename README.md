@@ -110,6 +110,16 @@ valSol.m
 This function check if the solution satisfies the original equation with
 tolerance of 1e-10.
 
+bad_example_generator.m
+
+This function tries to generates "bad examples" that do not converge for the
+algorithms.
+
+gen6x6x6_bad_example.m
+
+We use this script to generate the non-converge examples in the test case
+directory.
+
 genSymScript.m
 
 This function takes R as the argument and assumes the personalized vector v is
@@ -146,9 +156,15 @@ provides a way to convert R to P.
 
 ====================================
 
-figure plot:
+plot_fig:
 
+This directory contain all the Matlab files to generate the triangle plots.
 
+Two kinds of triangle plots are produced by the code:
+
+1) ratio of two consecutive steps (kappa)
+
+2) second largest eigenvalue of the Jacobian
 
 ====================================
 
@@ -180,8 +196,6 @@ and y2 are solutions to the two problem.
 
 This file contains two 6-by-6-by-6 tensors. Both do not converge for non-shift
 method and shifted method. The solution x1 and x2 are computed by Newton's
-method with randomly choice of the initial starting point.
-
-  
+method with randomly choice of the initial starting point.  
   
 
