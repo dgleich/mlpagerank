@@ -10,9 +10,7 @@ Description:
 The code repository computes the eigenvector of the high-order Markov chains.
 Formally, the problem is to solve the non-linear system of the following form,
 
-$$
-\mathbf{x} = \alpha \mathbf{R} \mathbf{x \otimes x} + (1-\alpha)\mathbf{v}
-$$
+x = alpha\*R\*kron(x,x) + (1-alpha)\*v
 
 where x is the solution of the high-order eigen-problem, R the n x n^2
 transition matrix (derived from 3 dimensional tensor transition), alpha damping
@@ -198,6 +196,8 @@ and y2 are solutions to the two problem.
 
 This file contains two 6-by-6-by-6 tensors. Both do not converge for non-shift
 method and shifted method. The solution x1 and x2 are computed by Newton's
-method with randomly choice of the initial starting point.  
+method with randomly choice of the initial starting point.
+
+  
   
 
