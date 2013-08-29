@@ -128,7 +128,7 @@ uniformly distributed.
 A new file called 'mySym.m' is generated. The new file can be used to computed
 the symbolic solution of the original problem.
 
-NOTE: This script only works with Matlab 2012a and subsequent version.
+NOTE: This script only works with Matlab 2012a and subsequent versions.
 
 ====================================
 
