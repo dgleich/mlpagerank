@@ -10,7 +10,9 @@ Description:
 The code repository computes the eigenvector of the high-order Markov chains.
 Formally, the problem is to solve the non-linear system of the following form,
 
-x = alpha\*R\*kron(x,x) + (1-alpha)\*v
+$$
+\mathbf{x} = \alpha \mathbf{R} \mathbf{x \otimes x} + (1-\alpha)\mathbf{v}
+$$
 
 where x is the solution of the high-order eigen-problem, R the n x n^2
 transition matrix (derived from 3 dimensional tensor transition), alpha damping
