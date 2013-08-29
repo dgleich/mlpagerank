@@ -2,7 +2,7 @@
 
 ###David F. Gleich
 
-=============================
+==================================
 
 Description:
 ------------
@@ -12,9 +12,9 @@ Formally, the problem is to solve the non-linear system of the following form,
 
 x = alpha\*R\*kron(x,x) + (1-alpha)\*v
 
-where x is the solution of the high-order eigen-problem, R the nxn^2 transition
-matrix (derived from 3 dimensional tensor transition), alpha damping factor 0 \<
-alpha \< 1, and v the personalized vector.
+where x is the solution of the high-order eigen-problem, R the n x n^2
+transition matrix (derived from 3 dimensional tensor transition), alpha damping
+factor 0 \< alpha \< 1, and v the personalized vector.
 
 In order to solve the problem efficiently, the following 3 algorithms are
 considered.
@@ -110,6 +110,16 @@ valSol.m
 This function check if the solution satisfies the original equation with
 tolerance of 1e-10.
 
+genSymScript.m
+
+This function takes R as the argument and assumes the personalized vector v is
+uniformly distributed.
+
+A new file called 'mySym.m' is generated. The new file can be used to computed
+the symbolic solution of the original problem.
+
+NOTE: This script only works with Matlab 2012a and subsequent version.
+
 ====================================
 
 oneTwoStepChain.m
@@ -133,6 +143,12 @@ convertR2P.m
 P is the n^2-by-n^2 transition matrix derived from the transition tensor. R is
 the n-by-n^2 transition matrix used in the tensorPageRank problem. This function
 provides a way to convert R to P.
+
+====================================
+
+figure plot:
+
+
 
 ====================================
 
