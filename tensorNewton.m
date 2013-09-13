@@ -11,6 +11,7 @@ else
     niter = maxIter;
     if nargin < 6
         niter = maxIter;
+        tol = 1e-12;
     else
         tol = ntol;
     end
