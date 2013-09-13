@@ -1,6 +1,7 @@
 function [xtrue, xhist, flag, sumx, diffsumx, kappa, flagk] ...
-    = tensorRank(alpha, R, v, x, gamma)
-% [xtrue, xhist, flag, sumx, diffsumx, kappa, flagr] = tensorRank(alpha, R, v, x, gamma)
+    = tensorRank(alpha, R, v, x, gamma, maxIter, ntol)
+% [xtrue, xhist, flag, sumx, diffsumx, kappa, flagr] 
+%   = tensorRank(alpha, R, v, x, gamma, maxIter, ntol)
 % xtrue is the true value of vector x (computed after nth iteration)
 % xhist records each iteration
 % sumx records the sum of vector x in each iteration
@@ -11,9 +12,22 @@ function [xtrue, xhist, flag, sumx, diffsumx, kappa, flagk] ...
 % flagk -- indicator for kappa > 1
 if nargin < 5
 	gamma = 0.5;
+    niter = 1e4;
+    tol = 1e-12;
+else
+    if nargin < 6
+        niter = 1e4;
+        tol = 1e-12;
+    else
+        niter = maxIter;
+        if nargin < 7
+            tol = 1e-12;
+        else
+            tol = ntol;
+        end
+    end
 end
-tol = 1e-12;
-niter = 10000;
+
 flag = 0; 
 flagk = 0;
 xhist = zeros(size(x,1), niter);
