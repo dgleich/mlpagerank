@@ -1,16 +1,25 @@
-function [xtrue, xhist] = twoStepChainSimplified(alpha, R, v, x)
-% [xtrue, xhist] = twoStepChainSimplified(alpha, R, v, x)
+function [xtrue, xhist] = twoStepChainSimplified(alpha, R, v, x, maxIter, ntol)
+% [xtrue, xhist] = twoStepChainSimplified(alpha, R, v, x, maxIter, ntol)
 % The function is simplified by replacing X with kron(x,x). The goal is to 
 % compare the solution with those from oneTwoStepChain.m.
 % The equaiton of the two-step Markov chain becomes,
 % i.e., x =  [alpha^2*R*P + alpha*(1-alpha)*R*V]*kron(x,x) + (1-alpha)*v
- 
+if nargin < 5
+    niter = 1e4;
+    tol = 1e-12;
+else
+    niter = maxIter;
+    if nargin < 6
+        tol = 1e-12;
+    else
+        tol = ntol;
+    end
+end
+
 P = convertR2P(R);
 I = eye(size(v,1));
 e = ones(size(v));
 V = kron(e',kron(I, v));
-tol = 1e-12;
-niter = 10000;
 xhist = zeros(size(x,1), niter);
 xcur = x;
 for n = 1:niter
