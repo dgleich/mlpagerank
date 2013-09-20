@@ -4,9 +4,8 @@ function [X1, X2] = oneTwoStepChain(alpha, R, v)
 % and the two-step Markov chain for the following equations, i.e.,
 % [alpha*P + (1-alpha)*V]*X = X  and 
 % [alpha*P + (1-alpha)*V]*[alpha*P + (1-alpha)*V]*X = X
-% where P = convertR2P(R) and V = kron(v, kron(I, e')).
+% where P = convertR2P(R) and V = kron(e', kron(I, v)).
 tol = 1e-12;
-v = v ./ sum(v);
 P = convertR2P(R);
 e = ones(size(v));
 I = eye(size(v,1));
