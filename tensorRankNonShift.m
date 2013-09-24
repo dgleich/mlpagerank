@@ -1,11 +1,21 @@
-function [xtrue, xhist, kappa, flag] = tensorRankNonShift(alpha, R, v, x)
-% [xtrue, xhist, kappa, flag] = tensorRankNonShift(alpha, R, v, x)
-% new update for the tensorRank problem
+function [xtrue, xhist, kappa, flag] = tensorRankNonShift(alpha, R, v, x, maxIter, ntol)
+% [xtrue, xhist, kappa, flag] = tensorRankNonShift(alpha, R, v, x, maxIter, ntol)
+% non-shift update for the tensorRank problem
 % x^(k+1) = (1-alpha)*(I - alpha/2*R*(kron(x^(k), I) + kron(I,
 % x^(k))))^(-1)*v
 % kappa records the ratio of ||x^(k+1) - x^(k)||_1 / ||x^(k) - x^(k-1)||_1
-tol = 1e-12;
-niter = 10000;
+if nargin < 5
+    niter = 1e4;
+    tol = 1e-12;
+else
+    niter = maxIter;
+    if nargin < 6
+        tol = 1e-12;
+    else
+        tol = ntol;
+    end
+end
+
 xhist = zeros(size(x,1), niter);
 kappa = zeros(niter - 2, 1);
 xcur = x;
