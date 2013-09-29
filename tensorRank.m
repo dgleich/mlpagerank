@@ -36,7 +36,7 @@ diffsumx = zeros(niter, 1);
 kappa = zeros(niter - 2, 1);
 xcur = x;
 Gamma = 1 / (1+gamma);
-for n = 1 : maxiter
+for n = 1 : niter
     %xn = (alpha*R*kron(xcur, xcur) + ...
     %    (1-alpha)*v + gamma*xcur)./(1+gamma);
     %xn = xn ./ norm(xn, 1); % normalization step
