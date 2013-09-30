@@ -22,8 +22,8 @@ kappa = zeros(niter - 2, 1);
 xcur = x;
 I = eye(max(size(x)));
 for n = 1:niter
-    A = I - alpha.*R*(kron(xcur, I) + kron(I, xcur));
-    b = -alpha.*R*kron(xcur, xcur) + (1-alpha)*v;
+    A = alpha.*R*(kron(xcur, I) + kron(I, xcur)) - I;
+    b = alpha.*R*kron(xcur, xcur) - (1-alpha)*v;
     xn = A \ b;
     xn = xn ./ sum(xn);
     

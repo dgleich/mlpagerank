@@ -2,7 +2,7 @@ function tensorposter_study_figures(name,R,alpha,v,gamma)
 step = @(x) alpha*R*kron(x,x) + (1-alpha)*v;
 
 %% Compute the solution trajectories.
-[xtrue1,xhist1] = tensorRank(alpha,R,v,v,1);
+[xtrue1,xhist1] = tensorRank(alpha,R,v,v,0);
 [xtrueg,xhistg] = tensorRank(alpha,R,v,v,gamma);
 
 %% Setup the simplex sampling.
@@ -64,6 +64,7 @@ scolor = (scolor + [1,1,1])/2;
 patch(X(1,:),X(2,:),scolor,'EdgeColor',scolor);
 scatter(T(1,:),T(2,:),25,nj,'filled');
 cmapsetup;
+caxis([-1.5 0.75]);
 colorbar;
 
 hold on;
