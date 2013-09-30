@@ -27,6 +27,19 @@ classdef tensorpr3
             obj.v = v;
         end
         
+        function J = jacobian(P,x,gamma)
+            % JACOBIAN return the Jacobian of the problem at x with shift
+            % gamma
+            
+            n = size(P.R,1);
+            I = eye(n);
+            J = P.alpha*gamma*P.R*(kron(x,I) + kron(I,x)) + (1-gamma)*I;
+        end
+        
+        function r = residual(P,x)
+            r = P.alpha * (P.R * kron(x, x)) + (1-P.alpha) * P.v - x;
+        end
+        
         function [x,hist,flag] = solve(obj,varargin)
             % SOLVE Run the power method on a tensor PageRank problem
             %
@@ -103,6 +116,50 @@ classdef tensorpr3
             end
             
             x = xn;
+        end
+        
+        function [x,hist,flag] = newton(varargin)
+            % NEWTON Solve the tensorpr3 iteration using Newton's method
+            
+            p = inputParser;
+            p.addOptional('maxiter',1e5);
+            p.addOptional('tol',1e-8);
+            p.addOptional('xtrue',[]);
+            p.parse(varargin{:});
+            opts = p.Results;
+            
+            % Extract data from obj
+            R = obj.R;
+            n = size(R,1);
+            a = obj.alpha;
+            v = obj.v;
+            
+            niter = opts.maxiter;
+            tol = opts.tol;
+            
+            
+            I = eye(n);
+            for n = 1:niter
+                A = I - alpha.*R*(kron(xcur, I) + kron(I, xcur));
+                b = (1-alpha)*v - alpha.*R*kron(xcur, xcur); % residual
+                xn = A \ b;
+                xn = xn ./ sum(xn);
+                
+                res = norm(b,inf);
+                hist(i) = res;
+                
+                if ~isempty(opts.xtrue), hist(i) = norm(xn - opts.xtrue,inf); end
+                
+                if res <= tol
+                    break
+                end
+           
+                xcur = xn;
+            end
+            if size(xhist, 2) == niter
+                fprintf('reaching max iter times!\n');
+                xtrue = xhist(:, niter);
+            end
         end
     end
 end
