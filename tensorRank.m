@@ -64,8 +64,8 @@ for n = 1 : niter
         xcur = xn;        
     end
 end
-if size(xhist, 2) == niter
-    fprintf('Reaching the max iteration times, not converge!\n');
+if size(xhist, 2) == niter && norm(xn-xcur,inf) > tol
+    fprintf('Reached the max iteration time, did not converge!\n');
     xtrue = xhist(:, niter);
     flag = 1;
 end
