@@ -19,12 +19,25 @@ classdef tensorpr3
                 alpha = 1/2;
             end
             if nargin < 3
-                v = 1/n;
+                v = ones(n, 1) ./ n;
             end
             
             obj.R = R;
             obj.alpha = alpha;
             obj.v = v;
+        end
+        
+        function J = jacobian(P,x,gamma)
+            % JACOBIAN return the Jacobian of the problem at x with shift
+            % gamma
+            
+            n = size(P.R,1);
+            I = eye(n);
+            J = P.alpha*gamma*P.R*(kron(x,I) + kron(I,x)) + (1-gamma)*I;
+        end
+        
+        function r = residual(P,x)
+            r = P.alpha * (P.R * kron(x, x)) + (1-P.alpha) * P.v - x;
         end
         
         function [x,hist,flag] = solve(obj,varargin)
@@ -79,7 +92,7 @@ classdef tensorpr3
                 z = y * Gamma + Gamma*(1-sum(y))*v;
                 xn = z + (1-sum(z))*xcur;
                 
-                curdiff = norm(xn - xcur, inf);
+                curdiff = norm(xn - xcur, 1);
                 hist(i) = curdiff;
                 if ~isempty(opts.xtrue)
                     hist(i) = norm(xn - opts.xtrue,inf);
@@ -95,6 +108,116 @@ classdef tensorpr3
             end
             
             hist = hist(1:i,:);
+            if i == niter && curdiff > tol
+                warning('did not converge');
+                flag = 0;
+            else
+                flag = 1;
+            end
+            
+            x = xn;
+        end
+        
+        function [x, hist, flag] = solven(obj, varargin)
+            % Solve2 solve the tensorpr3 iteration using non-shift method
+            
+            p = inputParser;
+            p.addOptional('maxiter',1e5);
+            p.addOptional('tol',1e-8);
+            p.addOptional('xtrue',[]);
+            p.parse(varargin{:});
+            opts = p.Results;
+            
+            % Extract data from obj
+            R = obj.R;
+            n = size(R,1);
+            a = obj.alpha;
+            v = obj.v;
+            
+            niter = opts.maxiter;
+            tol = opts.tol;
+            xcur = zeros(n,1);
+            xcur = xcur + v;
+            
+            hist = zeros(niter, 1);
+            
+            I = eye(n);
+            
+            for i = 1:niter
+                A = kron(xcur, I) + kron(I, xcur);
+                A = I - a/2 .*R*A;
+                b = (1-a).*v;
+                xn = A \ b;
+                xn = xn ./ norm(xn, 1);
+                
+                curdiff = norm(xn - xcur, 1);
+                hist(i) = curdiff;
+                
+                if ~isempty(opts.xtrue), hist(i) = norm(xn - opts.xtrue,inf); end
+                
+                if curdiff <= tol
+                    break
+                end
+           
+                xcur = xn;
+            end
+            
+            
+            hist = hist(1:i, :);
+            if i == niter && curdiff > tol
+                warning('did not converge');
+                flag = 0;
+            else
+                flag = 1;
+            end
+            
+            x = xn;
+        end
+        
+        
+        function [x,hist,flag] = newton(obj, varargin)
+            % NEWTON Solve the tensorpr3 iteration using Newton's method
+            
+            p = inputParser;
+            p.addOptional('maxiter',1e5);
+            p.addOptional('tol',1e-8);
+            p.addOptional('xtrue',[]);
+            p.parse(varargin{:});
+            opts = p.Results;
+            
+            % Extract data from obj
+            R = obj.R;
+            n = size(R,1);
+            a = obj.alpha;
+            v = obj.v;
+            
+            niter = opts.maxiter;
+            tol = opts.tol;
+            xcur = zeros(n,1);
+            xcur = xcur + v;
+            
+            hist = zeros(niter, 1);
+            
+            I = eye(n);
+            for i = 1:niter
+                A = a.*R*(kron(xcur, I) + kron(I, xcur)) - I;
+                b = a.*R*kron(xcur, xcur) - (1-a)*v; % residual
+                xn = A \ b;
+                xn = xn ./ sum(xn);
+                
+                curdiff = norm(xn - xcur, 1);
+                hist(i) = curdiff;
+                
+                if ~isempty(opts.xtrue), hist(i) = norm(xn - opts.xtrue,inf); end
+                
+                if curdiff <= tol
+                    break
+                end
+           
+                xcur = xn;
+            end
+            
+            hist = hist(1:i, :);
             if i == niter && curdiff > tol
                 warning('did not converge');
                 flag = 0;
