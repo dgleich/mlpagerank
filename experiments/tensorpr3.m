@@ -119,7 +119,7 @@ classdef tensorpr3
         end
         
         function [x, hist, flag] = solven(obj, varargin)
-            % Solve2 solve the tensorpr3 iteration using non-shift method
+            % Solven solve the tensorpr3 iteration using non-shift method
             
             p = inputParser;
             p.addOptional('maxiter',1e5);
