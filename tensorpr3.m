@@ -228,4 +228,16 @@ classdef tensorpr3
             x = xn;
         end
     end
+    
+    function [P,R] = markov(obj)
+    % Return the tensors and matrices for the modified Markov
+    % chain 
+    end
+    
+    function [P] = markov2(obj)
+    % Return the transition matrix for the 2nd order Markov 
+    % chain. 
+    end
+    
+    
 end
