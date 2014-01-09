@@ -285,43 +285,29 @@ classdef tensorpr3
             x = xt2;
         end
         
-        function [P,R] = markov(obj)
+        function [P,MR] = markov(obj)
             % Return the tensors and matrices for the modified Markov chain 
-            u = ones(size(obj.v));
-            u = u ./ sum(u);
-            R = obj.alpha .* obj.R + (1-obj.alpha).*(obj.v * kron(u',u'));
-            n = size(R, 1);
-            P = zeros(n, n, n);
-            for i = 1:n
-                for j = 1:n^2
-                    k = floor(j/n)+1;
-                    if mod(j, n) == 0
-                        k = k - 1;
-                    end
-                    m = mod(j, n);
-                    if m == 0
-                        m = n;
-                    end
-                    if R(i,j) ~= 0
-                        P(i, m, k) = R(i, j);
-                    end
-                end
-            end
+            
+            % TODO use reshape to remove the four loop?
+            n = size(obj.R,1);
+            P = reshape(obj.R,n,n,n);
+            P = obj.alpha*P + (1-obj.alpha)*repmat(obj.v, [1, n, n]);
+            MR = reshape(P, n, n^2);
         end
     
         function P = markov2(obj)
         % Return the transition matrix for the 2nd order Markov chain. 
             u = ones(size(obj.v));
             u = u ./ sum(u);
-            R = obj.alpha .* obj.R + (1-obj.alpha).*(obj.v * kron(u',u'));
-            n = size(R, 1);
+            MR = obj.alpha .* obj.R + (1-obj.alpha).*(obj.v * kron(u',u'));
+            n = size(MR, 1);
             P = zeros(n^2, n^2);
             for i = 1:n     % group i
                 tmp = zeros(n^2, n);
                 for j = 1:n % column j
                     ej = zeros(n, 1);
                     ej(j) = 1;
-                    tmp(:, j) = kron(ej, R(:, (i-1)*n + j));
+                    tmp(:, j) = kron(ej, MR(:, (i-1)*n + j));
                 end
                 P(:, (i-1)*n +1: i*n) = tmp;
             end
