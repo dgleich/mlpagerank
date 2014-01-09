@@ -4,6 +4,7 @@ classdef tensorpr3
         alpha
         v
     end
+    
     methods
         function obj = tensorpr3(R, alpha, v)
             % TENSORPR3 Create a TensorPR3 problem
@@ -27,17 +28,17 @@ classdef tensorpr3
             obj.v = v;
         end
         
-        function J = jacobian(P,x,gamma)
+        function J = jacobian(obj,x,gamma)
             % JACOBIAN return the Jacobian of the problem at x with shift
             % gamma
             
-            n = size(P.R,1);
+            n = size(obj.R,1);
             I = eye(n);
-            J = P.alpha*gamma*P.R*(kron(x,I) + kron(I,x)) + (1-gamma)*I;
+            J = obj.alpha*gamma*obj.R*(kron(x,I) + kron(I,x)) + (1-gamma)*I;
         end
         
-        function r = residual(P,x)
-            r = P.alpha * (P.R * kron(x, x)) + (1-P.alpha) * P.v - x;
+        function r = residual(obj,x)
+            r = obj.alpha * (obj.R * kron(x, x)) + (1-obj.alpha) * obj.v - x;
         end
         
         function [x,hist,flag] = solve(obj,varargin)
@@ -175,7 +176,7 @@ classdef tensorpr3
         end
         
         
-        function [x,hist,flag] = newton(obj, varargin)
+        function [x, hist, flag] = newton(obj, varargin)
             % NEWTON Solve the tensorpr3 iteration using Newton's method
             
             p = inputParser;
@@ -227,17 +228,96 @@ classdef tensorpr3
             
             x = xn;
         end
+    
+        function [x, hist, flag] = inner_outer(obj, varargin)
+            % inner_outer method
+            p = inputParser;
+            p.addOptional('maxiter',1e5);
+            p.addOptional('tol',1e-8);
+            p.addOptional('xtrue',[]);
+            p.parse(varargin{:});
+            opts = p.Results;
+            niter = opts.maxiter;
+            tol = opts.tol;
+            
+            % Extract data from obj
+            R = obj.R;
+            n = size(R,1);
+            a = obj.alpha;
+            v = obj.v;
+            
+            Rt = a.*R + (1-a).*v*ones(1, n^2);
+            at = a / 2;
+            xt = v;
+            hist = zeros(niter, 1);
+            for i = 1:niter
+                Tr = tensorpr3(Rt, at, xt);
+                xt2 = Tr.solve();
+                curdiff = norm(xt - xt2, 1);
+                hist(i) = curdiff;
+                if ~isempty(opts.xtrue)
+                    hist(i) = norm(xt2 - opts.xtrue,inf);
+                end
+                
+                % check for termination
+                if curdiff <= tol
+                    break;
+                end
+                % switch solutions
+                xt = xt2;                
+            end
+            hist = hist(1:i,:);
+            if i == niter && curdiff > tol
+                warning('did not converge');
+                flag = 0;
+            else
+                flag = 1;
+            end
+            
+            x = xt2;
+        end
+        
+        function [P,R] = markov(obj)
+            % Return the tensors and matrices for the modified Markov chain 
+            u = ones(size(obj.v));
+            u = u ./ sum(u);
+            R = obj.alpha .* obj.R + (1-obj.alpha).*(obj.v * kron(u',u'));
+            n = size(R, 1);
+            P = zeros(n, n, n);
+            for i = 1:n
+                for j = 1:n^2
+                    k = floor(j/n)+1;
+                    if mod(j, n) == 0
+                        k = k - 1;
+                    end
+                    m = mod(j, n);
+                    if m == 0
+                        m = n;
+                    end
+                    if R(i,j) ~= 0
+                        P(i, m, k) = R(i, j);
+                    end
+                end
+            end
+        end
+    
+        function P = markov2(obj)
+        % Return the transition matrix for the 2nd order Markov chain. 
+            u = ones(size(obj.v));
+            u = u ./ sum(u);
+            R = obj.alpha .* obj.R + (1-obj.alpha).*(obj.v * kron(u',u'));
+            n = size(R, 1);
+            P = zeros(n^2, n^2);
+            for i = 1:n     % group i
+                tmp = zeros(n^2, n);
+                for j = 1:n % column j
+                    ej = zeros(n, 1);
+                    ej(j) = 1;
+                    tmp(:, j) = kron(ej, R(:, (i-1)*n + j));
+                end
+                P(:, (i-1)*n +1: i*n) = tmp;
+            end
+        end
+    
     end
-    
-    function [P,R] = markov(obj)
-    % Return the tensors and matrices for the modified Markov
-    % chain 
-    end
-    
-    function [P] = markov2(obj)
-    % Return the transition matrix for the 2nd order Markov 
-    % chain. 
-    end
-    
-    
 end
