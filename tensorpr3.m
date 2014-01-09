@@ -16,7 +16,6 @@ classdef tensorpr3
             % The matrix R must be column stochastic.
             
             n = size(R,1);
-            u = ones(n, 1)./n;
             if nargin < 2
                 alpha = 1/2;
             end
@@ -24,12 +23,12 @@ classdef tensorpr3
                 v = ones(n, 1) ./ n;
             end
             % error checking
-            if u'*v ~= 1
-                error('input vector v is not stochastic.\n');
+            if ones(1,n)*v ~= 1
+                error('input vector v is not stochastic.');
             end
             
-            if min(u' * R) ~= 1
-                error('input matrix R is not column stochastic.\n');
+            if min(ones(1, n) * R) ~= 1
+                error('input matrix R is not column stochastic.');
             end
             
             obj.R = R;
