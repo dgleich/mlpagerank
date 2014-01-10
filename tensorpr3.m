@@ -23,8 +23,10 @@ classdef tensorpr3
                 v = ones(n, 1) ./ n;
             end
             % error checking
-            if ones(1,n)*v ~= 1
+            if norm(ones(1,n)*v - 1, 1) > eps(1)
                 error('input vector v is not stochastic.');
+            else
+                v = v ./ sum(v);
             end
             
             if min(ones(1, n) * R) ~= 1
@@ -75,7 +77,7 @@ classdef tensorpr3
             
             p = inputParser;
             p.addOptional('maxiter',1e5);
-            p.addOptional('tol',1e-8);
+            p.addOptional('tol',1e-10);
             p.addOptional('xtrue',[]);
             p.parse(varargin{:});
             opts = p.Results;
@@ -124,7 +126,7 @@ classdef tensorpr3
                 flag = 1;
             end
             
-            x = xn;
+            x = xn / sum(xn);
         end
         
         function [x, hist, flag] = solven(obj, varargin)
@@ -154,10 +156,10 @@ classdef tensorpr3
             
             for i = 1:niter
                 A = kron(xcur, I) + kron(I, xcur);
-                A = I - a/2 .*R*A;
-                b = (1-a).*v;
+                A = I - a/2*R*A;
+                b = (1-a)*v;
                 xn = A \ b;
-                xn = xn ./ norm(xn, 1);
+                xn = xn / norm(xn, 1);
                 
                 curdiff = norm(xn - xcur, 1);
                 hist(i) = curdiff;
@@ -209,10 +211,10 @@ classdef tensorpr3
             
             I = eye(n);
             for i = 1:niter
-                A = a.*R*(kron(xcur, I) + kron(I, xcur)) - I;
-                b = a.*R*kron(xcur, xcur) - (1-a)*v; % residual
+                A = a*R*(kron(xcur, I) + kron(I, xcur)) - I;
+                b = a*R*kron(xcur, xcur) - (1-a)*v; % residual
                 xn = A \ b;
-                xn = xn ./ sum(xn);
+                xn = xn / sum(xn);
                 
                 curdiff = norm(xn - xcur, 1);
                 hist(i) = curdiff;
@@ -254,7 +256,8 @@ classdef tensorpr3
             a = obj.alpha;
             v = obj.v;
             
-            Rt = a.*R + (1-a).*v*ones(1, n^2);
+            Rt = a*R + (1-a)*v*ones(1, n^2);
+            Rt = normout(Rt);
             at = a / 2;
             xt = v;
             hist = zeros(niter, 1);
@@ -287,19 +290,17 @@ classdef tensorpr3
         
         function [P,MR] = markov(obj)
             % Return the tensors and matrices for the modified Markov chain 
-            
-            % TODO use reshape to remove the four loop?
             n = size(obj.R,1);
+            e = ones(n,1);
+            MR = obj.alpha * obj.R + (1-obj.alpha)*(obj.v * kron(e',e'));
             P = reshape(obj.R,n,n,n);
-            P = obj.alpha*P + (1-obj.alpha)*repmat(obj.v, [1, n, n]);
-            MR = reshape(P, n, n^2);
         end
     
         function P = markov2(obj)
-        % Return the transition matrix for the 2nd order Markov chain. 
-            u = ones(size(obj.v));
-            u = u ./ sum(u);
-            MR = obj.alpha .* obj.R + (1-obj.alpha).*(obj.v * kron(u',u'));
+            % Return the transition matrix for the 2nd order Markov chain. 
+            n = size(obj.R, 1);
+            e = ones(n,1);
+            MR = obj.alpha * obj.R + (1-obj.alpha)*(obj.v * kron(e',e'));
             n = size(MR, 1);
             P = zeros(n^2, n^2);
             for i = 1:n     % group i
