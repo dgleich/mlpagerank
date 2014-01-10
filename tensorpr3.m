@@ -157,6 +157,9 @@ classdef tensorpr3
             for i = 1:niter
                 A = kron(xcur, I) + kron(I, xcur);
                 A = I - a/2*R*A;
+                if rcond(A) < 1e-12 
+                    error('matrix A is nearly singular, check other methods(solve, newton, or inner_outer)');
+                end
                 b = (1-a)*v;
                 xn = A \ b;
                 xn = xn / norm(xn, 1);
@@ -307,7 +310,7 @@ classdef tensorpr3
                 tmp = zeros(n^2, n);
                 for j = 1:n % column j
                     ej = zeros(n, 1);
-                    ej(j) = 1;
+                    ej(j) = 1;w
                     tmp(:, j) = kron(ej, MR(:, (i-1)*n + j));
                 end
                 P(:, (i-1)*n +1: i*n) = tmp;
