@@ -23,13 +23,13 @@ classdef tensorpr3
                 v = ones(n, 1) ./ n;
             end
             % error checking
-            if norm(ones(1,n)*v - 1, 1) > eps(1)
+            if abs(ones(1,n)*v - 1) > eps(1)
                 error('input vector v is not stochastic.');
             else
                 v = v ./ sum(v);
             end
             
-            if min(ones(1, n) * R) ~= 1
+            if abs(min(ones(1, n) * R) - 1) > eps(1)
                 error('input matrix R is not column stochastic.');
             end
             
