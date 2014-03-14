@@ -23,13 +23,13 @@ classdef tensorpr3
                 v = ones(n, 1) ./ n;
             end
             % error checking
-            if abs(ones(1,n)*v - 1) > eps(1)
+            if abs(ones(1,n)*v - 1) > eps(single(1/2))
                 error('input vector v is not stochastic.');
             else
                 v = v ./ sum(v);
             end
             
-            if abs(min(ones(1, n) * R) - 1) > eps(1)
+            if abs(min(ones(1, n) * R) - 1) > eps(single(1/2))
                 error('input matrix R is not column stochastic.');
             end
             
@@ -77,7 +77,7 @@ classdef tensorpr3
             
             p = inputParser;
             p.addOptional('maxiter',1e5);
-            p.addOptional('tol',1e-10);
+            p.addOptional('tol',1e-8);
             p.addOptional('xtrue',[]);
             p.parse(varargin{:});
             opts = p.Results;
@@ -126,7 +126,7 @@ classdef tensorpr3
                 flag = 1;
             end
             
-            x = xn / sum(xn);
+            x = xn ./ sum(xn);
         end
         
         function [x, hist, flag] = solven(obj, varargin)
@@ -162,7 +162,7 @@ classdef tensorpr3
                 end
                 b = (1-a)*v;
                 xn = A \ b;
-                xn = xn / norm(xn, 1);
+                xn = xn ./ norm(xn, 1);
                 
                 curdiff = norm(xn - xcur, 1);
                 hist(i) = curdiff;
@@ -196,6 +196,7 @@ classdef tensorpr3
             p.addOptional('maxiter',1e5);
             p.addOptional('tol',1e-8);
             p.addOptional('xtrue',[]);
+            p.addOptional('randInit', 0);
             p.parse(varargin{:});
             opts = p.Results;
             
@@ -208,7 +209,12 @@ classdef tensorpr3
             niter = opts.maxiter;
             tol = opts.tol;
             xcur = zeros(n,1);
-            xcur = xcur + v;
+            if opts.randInit ~= 0
+                xcur = rand(n, 1);
+                xcur = xcur ./ sum(xcur);
+            else
+                xcur = xcur + v;
+            end
             
             hist = zeros(niter, 1);
             
@@ -217,7 +223,7 @@ classdef tensorpr3
                 A = a*R*(kron(xcur, I) + kron(I, xcur)) - I;
                 b = a*R*kron(xcur, xcur) - (1-a)*v; % residual
                 xn = A \ b;
-                xn = xn / sum(xn);
+                xn = xn ./ sum(xn);
                 
                 curdiff = norm(xn - xcur, 1);
                 hist(i) = curdiff;
@@ -265,6 +271,7 @@ classdef tensorpr3
             xt = v;
             hist = zeros(niter, 1);
             for i = 1:niter
+                xt = xt ./ sum(xt);
                 Tr = tensorpr3(Rt, at, xt);
                 xt2 = Tr.solve();
                 curdiff = norm(xt - xt2, 1);
