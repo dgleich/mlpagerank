@@ -23,13 +23,11 @@ classdef tensorpr3
                 v = ones(n, 1) ./ n;
             end
             % error checking
-            if abs(sum(v) - 1) > eps(single(1/2))
+            if abs(sum(v) - 1) > n*eps
                 error('input vector v is not stochastic.');
-            else
-                v = v ./ sum(v);
             end
             
-            if abs(min(ones(1, n) * R) - 1) > eps(single(1/2))
+            if any( abs( sum(R) - ones(1,size(R,2)) ) > n*eps )
                 error('input matrix R is not column stochastic.');
             end
             
@@ -51,8 +49,14 @@ classdef tensorpr3
             r = obj.alpha * (obj.R * kron(x, x)) + (1-obj.alpha) * obj.v - x;
         end
         
-        function [x,hist,flag] = solve(obj,varargin)
-            % SOLVE Run the power method on a tensor PageRank problem
+        function varargout = solve(obj,varargin)
+            % SOLVE Use a shifted iteration to solve the tensor PageRank problem 
+            [varargout{1:nargout}] = obj.shifted(varargin{:});
+        end
+            
+        
+        function [x,hist,flag] = shifted(obj,varargin)
+            % SHIFTED Run the power method on a tensor PageRank problem
             %
             % x = solve(P) solves with gamma=1/2, which may or may not
             % converge.
@@ -65,6 +69,7 @@ classdef tensorpr3
             %   'maxiter' :
             %   'tol' :
             %   'xtrue' :
+            
             % TODO, finish the description
             
             
@@ -99,7 +104,7 @@ classdef tensorpr3
             
             for i=1:niter
                 % TODO make this iteration better
-                y = a*(R*kron(xcur, xcur)); % make sure Matlab does it 
+                y = a*(R*kron(xcur, xcur)); 
                 z = y * Gamma + Gamma*(1-sum(y))*v;
                 xn = z + (1-sum(z))*xcur;
                 
@@ -129,8 +134,8 @@ classdef tensorpr3
             x = xn ./ sum(xn);
         end
         
-        function [x, hist, flag] = solven(obj, varargin)
-            % Solven solve the tensorpr3 iteration using non-shift method
+        function [x, hist, flag] = inverseiter(obj, varargin)
+            % INVERSEITER solve the tensorpr3 iteration using an inverse iteration
             
             p = inputParser;
             p.addOptional('maxiter',1e5);
@@ -157,9 +162,6 @@ classdef tensorpr3
             for i = 1:niter
                 A = kron(xcur, I) + kron(I, xcur);
                 A = I - a/2*R*A;
-                if rcond(A) < 1e-12 
-                    error('matrix A is nearly singular, check other methods(solve, newton, or inner_outer)');
-                end
                 b = (1-a)*v;
                 xn = A \ b;
                 xn = xn ./ norm(xn, 1);
@@ -248,8 +250,9 @@ classdef tensorpr3
             x = xn;
         end
     
-        function [x, hist, flag] = inner_outer(obj, varargin)
-            % inner_outer method
+        function [x, hist, flag] = innout(obj, varargin)
+            % INNOUT Solve via an inner-outer iteration
+            
             p = inputParser;
             p.addOptional('maxiter',1e5);
             p.addOptional('tol',1e-8);
@@ -266,7 +269,6 @@ classdef tensorpr3
             v = obj.v;
             
             Rt = a*R + (1-a)*v*ones(1, n^2);
-            Rt = normout(Rt);
             at = a / 2;
             xt = v;
             hist = zeros(niter, 1);
