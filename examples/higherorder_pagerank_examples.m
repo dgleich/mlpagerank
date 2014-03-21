@@ -1,6 +1,6 @@
 %% Example for paper
 
-load examples/example1
+load tensors/example1
 n = size(R,1);
 
 v = ones(3,1)/n;
