@@ -55,7 +55,7 @@ fprintf(fid, s);
 p = ['k = 1;\n'];
 p = [p, 'X = zeros(size(Y));\n'];
 p = [p, 'for j = 1:size(Y, 2)\n\t'];
-p = [p, 'if (min(Y(:, j)) >= 0 && sum(Y(:, j)) == 1)\n\t\t'];
+p = [p, 'if (min(real(Y(:, j))) >= 0 && norm(max(imag(Y(:, j)))) <= eps(1) && norm(sum(Y(:, j))-1) <= eps(1))\n\t\t'];
 p = [p, 'X(:, k) = Y(:, j);\n\t\t'];
 p = [p, 'k = k + 1;\n\t'];
 p = [p, 'end\nend\n'];

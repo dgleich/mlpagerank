@@ -4,6 +4,7 @@ classdef tensorpr3
         alpha
         v
     end
+    
     methods
         function obj = tensorpr3(R, alpha, v)
             % TENSORPR3 Create a TensorPR3 problem
@@ -19,7 +20,17 @@ classdef tensorpr3
                 alpha = 1/2;
             end
             if nargin < 3
-                v = 1/n;
+                v = ones(n, 1) ./ n;
+            end
+            % error checking
+            if abs(sum(v) - 1) > eps(single(1/2))
+                error('input vector v is not stochastic.');
+            else
+                v = v ./ sum(v);
+            end
+            
+            if abs(min(ones(1, n) * R) - 1) > eps(single(1/2))
+                error('input matrix R is not column stochastic.');
             end
             
             obj.R = R;
@@ -27,17 +38,17 @@ classdef tensorpr3
             obj.v = v;
         end
         
-        function J = jacobian(P,x,gamma)
+        function J = jacobian(obj,x,gamma)
             % JACOBIAN return the Jacobian of the problem at x with shift
             % gamma
             
-            n = size(P.R,1);
+            n = size(obj.R,1);
             I = eye(n);
-            J = P.alpha*gamma*P.R*(kron(x,I) + kron(I,x)) + (1-gamma)*I;
+            J = obj.alpha*gamma*obj.R*(kron(x,I) + kron(I,x)) + (1-gamma)*I;
         end
         
-        function r = residual(P,x)
-            r = P.alpha * (P.R * kron(x, x)) + (1-P.alpha) * P.v - x;
+        function r = residual(obj,x)
+            r = obj.alpha * (obj.R * kron(x, x)) + (1-obj.alpha) * obj.v - x;
         end
         
         function [x,hist,flag] = solve(obj,varargin)
@@ -92,7 +103,7 @@ classdef tensorpr3
                 z = y * Gamma + Gamma*(1-sum(y))*v;
                 xn = z + (1-sum(z))*xcur;
                 
-                curdiff = norm(xn - xcur, inf);
+                curdiff = norm(xn - xcur, 1);
                 hist(i) = curdiff;
                 if ~isempty(opts.xtrue)
                     hist(i) = norm(xn - opts.xtrue,inf);
@@ -115,11 +126,11 @@ classdef tensorpr3
                 flag = 1;
             end
             
-            x = xn;
+            x = xn ./ sum(xn);
         end
         
-        function [x,hist,flag] = newton(varargin)
-            % NEWTON Solve the tensorpr3 iteration using Newton's method
+        function [x, hist, flag] = solven(obj, varargin)
+            % Solven solve the tensorpr3 iteration using non-shift method
             
             p = inputParser;
             p.addOptional('maxiter',1e5);
@@ -136,30 +147,182 @@ classdef tensorpr3
             
             niter = opts.maxiter;
             tol = opts.tol;
+            xcur = zeros(n,1);
+            xcur = xcur + v;
             
+            hist = zeros(niter, 1);
             
             I = eye(n);
-            for n = 1:niter
-                A = I - alpha.*R*(kron(xcur, I) + kron(I, xcur));
-                b = (1-alpha)*v - alpha.*R*kron(xcur, xcur); % residual
+            
+            for i = 1:niter
+                A = kron(xcur, I) + kron(I, xcur);
+                A = I - a/2*R*A;
+                if rcond(A) < 1e-12 
+                    error('matrix A is nearly singular, check other methods(solve, newton, or inner_outer)');
+                end
+                b = (1-a)*v;
                 xn = A \ b;
-                xn = xn ./ sum(xn);
+                xn = xn ./ norm(xn, 1);
                 
-                res = norm(b,inf);
-                hist(i) = res;
+                curdiff = norm(xn - xcur, 1);
+                hist(i) = curdiff;
                 
                 if ~isempty(opts.xtrue), hist(i) = norm(xn - opts.xtrue,inf); end
                 
-                if res <= tol
+                if curdiff <= tol
                     break
                 end
            
                 xcur = xn;
             end
-            if size(xhist, 2) == niter
-                fprintf('reaching max iter times!\n');
-                xtrue = xhist(:, niter);
+            
+            
+            hist = hist(1:i, :);
+            if i == niter && curdiff > tol
+                warning('did not converge');
+                flag = 0;
+            else
+                flag = 1;
+            end
+            
+            x = xn;
+        end
+        
+        
+        function [x, hist, flag] = newton(obj, varargin)
+            % NEWTON Solve the tensorpr3 iteration using Newton's method
+            
+            p = inputParser;
+            p.addOptional('maxiter',1e5);
+            p.addOptional('tol',1e-8);
+            p.addOptional('xtrue',[]);
+            p.addOptional('randInit', 0);
+            p.parse(varargin{:});
+            opts = p.Results;
+            
+            % Extract data from obj
+            R = obj.R;
+            n = size(R,1);
+            a = obj.alpha;
+            v = obj.v;
+            
+            niter = opts.maxiter;
+            tol = opts.tol;
+            xcur = zeros(n,1);
+            if opts.randInit ~= 0
+                xcur = rand(n, 1);
+                xcur = xcur ./ sum(xcur);
+            else
+                xcur = xcur + v;
+            end
+            
+            hist = zeros(niter, 1);
+            
+            I = eye(n);
+            for i = 1:niter
+                A = a*R*(kron(xcur, I) + kron(I, xcur)) - I;
+                b = a*R*kron(xcur, xcur) - (1-a)*v; % residual
+                xn = A \ b;
+                xn = xn ./ sum(xn);
+                
+                curdiff = norm(xn - xcur, 1);
+                hist(i) = curdiff;
+                
+                if ~isempty(opts.xtrue), hist(i) = norm(xn - opts.xtrue,inf); end
+                
+                if curdiff <= tol
+                    break
+                end
+           
+                xcur = xn;
+            end
+            
+            hist = hist(1:i, :);
+            if i == niter && curdiff > tol
+                warning('did not converge');
+                flag = 0;
+            else
+                flag = 1;
+            end
+            
+            x = xn;
+        end
+    
+        function [x, hist, flag] = inner_outer(obj, varargin)
+            % inner_outer method
+            p = inputParser;
+            p.addOptional('maxiter',1e5);
+            p.addOptional('tol',1e-8);
+            p.addOptional('xtrue',[]);
+            p.parse(varargin{:});
+            opts = p.Results;
+            niter = opts.maxiter;
+            tol = opts.tol;
+            
+            % Extract data from obj
+            R = obj.R;
+            n = size(R,1);
+            a = obj.alpha;
+            v = obj.v;
+            
+            Rt = a*R + (1-a)*v*ones(1, n^2);
+            Rt = normout(Rt);
+            at = a / 2;
+            xt = v;
+            hist = zeros(niter, 1);
+            for i = 1:niter
+                xt = xt ./ sum(xt);
+                Tr = tensorpr3(Rt, at, xt);
+                xt2 = Tr.solve();
+                curdiff = norm(xt - xt2, 1);
+                hist(i) = curdiff;
+                if ~isempty(opts.xtrue)
+                    hist(i) = norm(xt2 - opts.xtrue,inf);
+                end
+                
+                % check for termination
+                if curdiff <= tol
+                    break;
+                end
+                % switch solutions
+                xt = xt2;                
+            end
+            hist = hist(1:i,:);
+            if i == niter && curdiff > tol
+                warning('did not converge');
+                flag = 0;
+            else
+                flag = 1;
+            end
+            
+            x = xt2;
+        end
+        
+        function [P,MR] = markov(obj)
+            % Return the tensors and matrices for the modified Markov chain 
+            n = size(obj.R,1);
+            e = ones(n,1);
+            MR = obj.alpha * obj.R + (1-obj.alpha)*(obj.v * kron(e',e'));
+            P = reshape(obj.R,n,n,n);
+        end
+    
+        function P = markov2(obj)
+            % Return the transition matrix for the 2nd order Markov chain. 
+            n = size(obj.R, 1);
+            e = ones(n,1);
+            MR = obj.alpha * obj.R + (1-obj.alpha)*(obj.v * kron(e',e'));
+            n = size(MR, 1);
+            P = zeros(n^2, n^2);
+            for i = 1:n     % group i
+                tmp = zeros(n^2, n);
+                for j = 1:n % column j
+                    ej = zeros(n, 1);
+                    ej(j) = 1;
+                    tmp(:, j) = kron(ej, MR(:, (i-1)*n + j));
+                end
+                P(:, (i-1)*n +1: i*n) = tmp;
             end
         end
+    
     end
 end

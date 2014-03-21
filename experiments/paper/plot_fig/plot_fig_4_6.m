@@ -1,9 +1,8 @@
-function tetrahedron_plot()
 %% select 4 points of the tetrahedron
 alpha = 0.99;
 v = ones(4,1)./4;
-addpath('../');
-addpath('../test_case/');
+addpath('../../../');
+addpath('../../../test_case/');
 load('4x4x4_not_converge_non_shift.mat', 'R1');
 R = R1;
 T = [1 0 0 1; 0 1 0 1; 0 0 1 1];
@@ -35,7 +34,8 @@ for i = 1:size(X,2)
     Jv = sort(eig(J), 'descend');
     njac(i) = Jv(2);
 end
-%% kappa value
+%% kappa value 
+% fig 4.6(a)
 clf;
 hold all;
 
@@ -64,6 +64,10 @@ axis off;
 axis tight;
 axis square;
 axis equal;
+set(gca, 'FontSize', 15);
+set_figure_size([3 3]);
+name = 'kappa_tetrahedron_nonShift';
+print(gcf,sprintf('%s.eps',name), '-depsc2');
 
 %% plot 2nd largest eigenvalue of Jacobian
 clf;
@@ -89,12 +93,17 @@ scatter3(Px, Py, Pz, 25, Pnj, 'filled');
 plot3(ZP(1,:), ZP(2,:), ZP(3,:), 'g^-', 'LineWidth', 2);
 cmapsetup;
 caxis([-1.5 0.75]);
-colorbar;
+hcb = colorbar;
+set(hcb, 'YTick', [-1.5 -0.75 0 0.75]);
 
 axis off;
 axis tight;
 axis square;
 axis equal;
+set(gca, 'FontSize', 15);
+set_figure_size([3 3]);
+name = 'lambda2_tetrahedron_nonShift';
+print(gcf,sprintf('%s.eps',name), '-depsc2');
 %% Newton's method
 [~, xhist] = tensorNewton(alpha, R, v,v);
 xhist = [v xhist];
@@ -139,6 +148,11 @@ axis off;
 axis tight;
 axis square;
 axis equal;
+set(gca, 'FontSize', 15);
+set_figure_size([3 3]);
+name = 'kappa_tetrahedron_Newton';
+print(gcf,sprintf('%s.eps',name), '-depsc2');
+
 %% plot 2nd largest eigenvalue of Jacobian
 clf;
 hold all;
@@ -163,25 +177,14 @@ scatter3(Px, Py, Pz, 25, Pnj, 'filled');
 plot3(ZP(1,:), ZP(2,:), ZP(3,:), 'g^-', 'LineWidth', 2);
 cmapsetup;
 caxis([-1.5 0.75]);
-colorbar;
+hcb = colorbar;
+set(hcb, 'YTick', [-1.5 -0.75 0 0.75]);
 
 axis off;
 axis tight;
 axis square;
 axis equal;
-
-
-% %% plot isosurface
-% [x,y,z] = meshgrid(X(1,:), X(2,:),X(3,:));
-% u = zeros(size(x));
-% for i = 1:size(u,1)
-%     for j = 1:size(u,2)
-%         for k = 1:size(u,3)
-%             u(i, j, k) = fx([x(i, j, k); y(i,j,k); z(1,1,k); 1- x(i,j,k)-...
-%                 y(i,j,k) - z(1,1,k)]);
-%         end
-%     end
-% end
-% %%
-% isosurface(x,y,z,u,1);
-end
+set(gca, 'FontSize', 15);
+set_figure_size([3 3]);
+name = 'lambda2_tetrahedron_Newton';
+print(gcf,sprintf('%s.eps',name), '-depsc2');

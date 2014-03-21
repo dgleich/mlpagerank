@@ -30,7 +30,8 @@ patch(X(1,:), X(2,:),scolor, 'EdgeColor', scolor);
 scatter(T(1,:), T(2, :), 25, nj, 'filled');
 cmapsetup;
 caxis([-1.5 0.75]);
-colorbar;
+hcb = colorbar;
+set(hcb, 'YTick', [-1.5 -0.75 0 0.75]);
 
 hold on;
 plot(shist(1,:), shist(2,:), 'g-');
@@ -41,7 +42,8 @@ axis tight;
 axis square;
 axis equal;
 
-title(sprintf('max = %f\n', max(nj)));
-set_figure_size([4 4]);
+title(sprintf('max = %f\n', max(nj)), 'FontSize', 15);
+
+set_figure_size([3 3]);
 print(gcf, sprintf('%s-jac.eps', name), '-depsc2');
 end
