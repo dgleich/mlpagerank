@@ -14,10 +14,11 @@
 % alpha R x^2 - alpha x = 0
 % or
 % R x^2 = x
-% which means if we set R to be a PageRank system itself, then we MIGHT get convergence here 
+% which means if we set R to be a PageRank system itself,
+% then we MIGHT get convergence here 
 
 %% Load a bad example
-load('../../test_case/4x4x4_not_converge_non_shift');
+load('../../tensors/4x4x4_not_converge_non_shift');
 
 %%
 R = R16;

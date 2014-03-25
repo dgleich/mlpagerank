@@ -1,0 +1,2 @@
+% This experiment tested what eventually became the 
+% inner outer iteration, or originally called "self-solve"
