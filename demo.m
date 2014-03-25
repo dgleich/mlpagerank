@@ -1,5 +1,5 @@
 %% Run the power method of Li and Ng on a PageRank modified tensor
-load('./test_case/ling1') % load the first example for li and ng
+load('./tensors/ling1') % load the first example for li and ng
 tpr3 = tensorpr3(P, 1);
 [~,R] = tpr3.markov();
 % li-ng's method

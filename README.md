@@ -1,8 +1,34 @@
-###Yongyang Yu (yu163@purdue.edu)
+tensor-pagrank
+==============
 
-###David F. Gleich
+### David F. Gleich
+### Yongyang Yu (yu163@purdue.edu)
 
-==================================
+Our code focuses on the 3rd order case.
+
+x = alpha\*R\*kron(x,x) + (1-alpha)\*v
+
+`tensorpr3` : a class to work with 3rd order tensor
+              PageRank problem. This problem class
+              takes a stochastic tensor represented
+              by R or a 3rd order tensor P, alpha,
+              and v.
+
+`tensorpr3/solve` : our recommended solver for
+                    tensorpr3 problems for use in 
+                    other codes
+
+`tensorpr3/shifted` : a shifted power method solver
+`tensorpr3/inverse_iter` : an inverse iteration
+`tensorpr3/newton` : a Newton iteration
+`tensorpr3/innout` : an inner-outer iteration
+
+`tensorpr3/residual` : check the residual
+
+`li_gamma` : compute the value of gamma from Li and Ng 
+             to determine if a solution of a tensor
+             problem is unique.
+
 
 
 Description:
@@ -11,7 +37,7 @@ Description:
 The code repository computes the eigenvector of the high-order Markov chains.
 Formally, the problem is to solve the non-linear system of the following form,
 
-x = alpha\*R\*kron(x,x) + (1-alpha)\*v
+
 
 where x is the solution of the high-order eigen-problem, R the n x n^2
 transition matrix (derived from 3 dimensional tensor transition), alpha damping

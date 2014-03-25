@@ -8,7 +8,7 @@ n = size(R,1);
 %% Compute PageRank
 P = R(1:n,1:n); xpr = (eye(n) - alpha*P)\v; xpr = xpr/sum(xpr);
 %% Compute tensor PageRank
-x1 = tensorRank(alpha, R, v,v); % x1 -- solution to tensor PageRank model
+x1 = tensorpr3(R, alpha, v).solve(); % x1 -- solution to tensor PageRank model
 %% Compare
 [xpr x1 xpr-x1]
 %% Compute the higher order solutions

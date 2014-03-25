@@ -15,20 +15,37 @@ classdef tensorpr3
             % and the value v defaults to 1/n, where R is n-by-n^2
             % The matrix R must be column stochastic.
             
+            if ~ismatrix(R)
+                if ndims(R) ~= 3
+                    error('tensorpr3:invalidSize', ...
+                        'tensorpr3 is only defined by 3rd order tensors');
+                end
+                n = size(R,1);
+                R = reshape(R,n,n^2);
+            else
+                n = size(R,1);
+                if size(R,2) ~= n^2
+                    error('tensorpr3:invalidSize', ...
+                        'tensorpr3 needs an n-by-n^2 stochastic matrix');
+                end
+            end
+
             n = size(R,1);
             if nargin < 2
                 alpha = 1/2;
             end
             if nargin < 3
-                v = ones(n, 1) ./ n;
+                v = ones(n,1)/n;
             end
             % error checking
             if abs(sum(v) - 1) > n*eps
-                error('input vector v is not stochastic.');
+                error('tensorpr3:notStochastic',...
+                    'input vector v is not stochastic.');
             end
             
             if any( abs( sum(R) - ones(1,size(R,2)) ) > n*eps )
-                error('input matrix R is not column stochastic.');
+                error('tensorpr3:notStochastic',...
+                    'input matrix R is not column stochastic.');
             end
             
             obj.R = R;
@@ -37,8 +54,11 @@ classdef tensorpr3
         end
         
         function J = jacobian(obj,x,gamma)
-            % JACOBIAN return the Jacobian of the problem at x with shift
-            % gamma
+            % JACOBIAN The Jacobian of the problem at x with shift gamma
+            
+            if nargin < 3
+                gamma = 1;
+            end
             
             n = size(obj.R,1);
             I = eye(n);
@@ -46,33 +66,36 @@ classdef tensorpr3
         end
         
         function r = residual(obj,x)
+            % RESIDUAL The residual of the problem for solution x
             r = obj.alpha * (obj.R * kron(x, x)) + (1-obj.alpha) * obj.v - x;
         end
         
         function varargout = solve(obj,varargin)
             % SOLVE Use a shifted iteration to solve the tensor PageRank problem 
-            [varargout{1:nargout}] = obj.shifted(varargin{:});
+            if obj.alpha < 1/2
+                [varargout{1:nargout}] = obj.shifted(varargin{:});
+            else
+                [varargout{1:nargout}] = obj.innout(varargin{:});
+            end
         end
             
         
         function [x,hist,flag] = shifted(obj,varargin)
             % SHIFTED Run the power method on a tensor PageRank problem
             %
-            % x = solve(P) solves with gamma=1/2, which may or may not
+            % x = shifted(P) solves with gamma=1/2, which may or may not
             % converge.
             %
-            % x = solve(P,gamma) solves with a shift of gamma
-            % x = solve(P,'key',value,'key',value,...)
-            % x = solve(P,gamma,'key',value,'key',value,...)
+            % x = shifted(P,gamma) solves with a shift of gamma
+            % x = shifted(P,'key',value,'key',value,...)
+            % x = shifted(P,gamma,'key',value,'key',value,...)
             %
             % Valid additional parameters
-            %   'maxiter' :
-            %   'tol' :
-            %   'xtrue' :
-            
-            % TODO, finish the description
-            
-            
+            %   'maxiter' : the maximum number of iterations, set to 1000
+            %   'tol' : the solution tolerance, set to 1e-8
+            %   'xtrue' : an optional true solution to get errors
+            %             to report for analytic descriptions
+
             if nargin>1 && isnumeric(varargin{1})
                 gamma = varargin{1};
                 varargin = varargin(2:end);
@@ -125,7 +148,9 @@ classdef tensorpr3
             
             hist = hist(1:i,:);
             if i == niter && curdiff > tol
-                warning('did not converge');
+                warning('tensorpr3:notConverged',...
+                    'did not converge after %i iterations to %e tolerance',...
+                    niter, tol);
                 flag = 0;
             else
                 flag = 1;
@@ -181,7 +206,9 @@ classdef tensorpr3
             
             hist = hist(1:i, :);
             if i == niter && curdiff > tol
-                warning('did not converge');
+                warning('tensorpr3:notConverged',...
+                    'did not converge after %i iterations to %e tolerance',...
+                    niter, tol);
                 flag = 0;
             else
                 flag = 1;
@@ -241,7 +268,9 @@ classdef tensorpr3
             
             hist = hist(1:i, :);
             if i == niter && curdiff > tol
-                warning('did not converge');
+                warning('tensorpr3:notConverged',...
+                    'did not converge after %i iterations to %e tolerance',...
+                    niter, tol);
                 flag = 0;
             else
                 flag = 1;
@@ -275,8 +304,8 @@ classdef tensorpr3
             for i = 1:niter
                 xt = xt ./ sum(xt);
                 Tr = tensorpr3(Rt, at, xt);
-                xt2 = Tr.solve();
-                curdiff = norm(xt - xt2, 1);
+                xt2 = Tr.solve('tol',tol/10);
+                curdiff = norm(obj.residual(xt2), 1);
                 hist(i) = curdiff;
                 if ~isempty(opts.xtrue)
                     hist(i) = norm(xt2 - opts.xtrue,inf);
@@ -301,7 +330,15 @@ classdef tensorpr3
         end
         
         function [P,MR] = markov(obj)
-            % Return the tensors and matrices for the modified Markov chain 
+            % MARKOV Return the tensors and matrices for the modified Markov chain 
+            %
+            % Example:
+            %   R = [1/3 1/3 1/3 1/3 0 0 0 0 0;
+            %        1/3 1/3 1/3 1/3 0 1/2 1 0 1;
+            %        1/3 1/3 1/3 1/3 1 1/2 0 1 0];
+            %   pr = tensorpr3(R,0.99);
+            %   gamma = li_gamma(markov(pr))
+            
             n = size(obj.R,1);
             e = ones(n,1);
             MR = obj.alpha * obj.R + (1-obj.alpha)*(obj.v * kron(e',e'));
@@ -309,7 +346,13 @@ classdef tensorpr3
         end
     
         function P = markov2(obj)
-            % Return the transition matrix for the 2nd order Markov chain. 
+            % MARKOV2 The transition matrix for the 2nd order Markov chain.
+            %
+            % M = markov2(pr) returns the Markov chain transition matrix
+            % for the second order Markov chain problem with a unique
+            % solution corresponding to the tensor PageRank problem. (The
+            % solution is only unique if alpha < 1, but the second order
+            % chain is well defined regardless.)
             n = size(obj.R, 1);
             e = ones(n,1);
             MR = obj.alpha * obj.R + (1-obj.alpha)*(obj.v * kron(e',e'));

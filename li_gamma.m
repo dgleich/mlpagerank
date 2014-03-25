@@ -1,21 +1,32 @@
-function [gamma,S] = computeGamma(R, alpha, v)
-% [gamma,S] = computeGamma(R, alpha, v)
-% argument R is the original transition tensor
-% alpha is the damping factor
-% gamma will be intractable for large dimensions
-% the order of the tensor should be 3
-n = size(R, 1); % n is the dimension
-if nargin < 3
-    v = ones(n, 1)./n;
+function [gamma,S] = li_gamma(P)
+% LI_GAMMA Compute the gamma value from Li and Ng's paper
+%
+% [gamma,S] = li_gamma(P) directly computes the
+% value of gamma and the associated set S for 
+% a third order tensor. The tensor P can be given
+% as either an n-times-n^2 array, or an 
+% n-times-n-times-n tensor. 
+%
+% This computation works for larger tensors, but
+% it must enumerate over all subsets, and so may
+% be very expensive. 
+%
+% Example:
+%   li_gamma([0 1 0 1; 1 0 1 0]) % should return 3
+%  
+
+if ismatrix(P)
+    n = size(P,1);
+    P = reshape(P,n,n,n);
 end
-e = ones(n,1);
-T = alpha .* R + (1-alpha).*v *kron(e',e');
-P = zeros(n,n,n);
-tmp = zeros(2^n - 2, 1);% totally (2^n -2) non-empty subset
+
+if ndims(P) ~= 3
+    error('li_gamma:invalidSize','gamma is only defined by 3x3x3 tensors');
+end
+
+n = size(P,1);
+
 k = 1;
-for i = 1:n
-    P(:,i,:) = T(:, (i-1)*n+1:i*n);
-end
 inds = {};
 for i = 1:(n-1) 
     total = combnk(1:n, i);      % i-items subset 
@@ -75,5 +86,3 @@ j = inds{ind}(2);
 
 total = combnk(1:n, i);      % i-items subset 
 S = total(j, :);         
-
-end
