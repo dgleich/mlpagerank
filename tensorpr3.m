@@ -174,7 +174,7 @@ classdef tensorpr3
             
             p = inputParser;
             p.addOptional('maxiter',1e4);
-            p.addOptional('tol',1e-8);
+            p.addOptional('tol',1e-8,@(x) isnumeric(x) && x<1 && x>0);
             p.addOptional('xtrue',[]);
             p.addOptional('randinit',false,@islogical);
             p.parse(varargin{:});
@@ -242,7 +242,7 @@ classdef tensorpr3
             
             p = inputParser;
             p.addOptional('maxiter',1e4);
-            p.addOptional('tol',1e-8);
+            p.addOptional('tol',1e-8,@(x) isnumeric(x) && x<1 && x>0);
             p.addOptional('xtrue',[]);
             p.addOptional('randinit',false,@islogical);
             p.parse(varargin{:});
@@ -304,7 +304,7 @@ classdef tensorpr3
             
             p = inputParser;
             p.addOptional('maxiter',1e4);
-            p.addOptional('tol',1e-8);
+            p.addOptional('tol',1e-8,@(x) isnumeric(x) && x<1 && x>0);
             p.addOptional('xtrue',[]);
             p.addOptional('randinit',false,@islogical);
             p.parse(varargin{:});
@@ -338,7 +338,7 @@ classdef tensorpr3
                 curres = norm(obj.residual(xn), 1);
                 hist(i) = curres;
                 if ~isempty(opts.xtrue)
-                    hist(i) = norm(xt2 - opts.xtrue,inf);
+                    hist(i) = norm(xn - opts.xtrue,inf);
                 end               
                 
                 % switch solutions
@@ -400,6 +400,5 @@ classdef tensorpr3
                 P(:, (i-1)*n +1: i*n) = tmp;
             end
         end
-    
     end
 end
