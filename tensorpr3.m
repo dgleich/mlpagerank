@@ -80,7 +80,7 @@ classdef tensorpr3
         end
             
         
-        function [x,hist,flag] = shifted(obj,varargin)
+        function [x,hist,flag, ihist] = shifted(obj,varargin)
             % SHIFTED Run the power method on a tensor PageRank problem
             %
             % x = shifted(P) solves with gamma=1/2, which may or may not
@@ -104,11 +104,13 @@ classdef tensorpr3
             end
             
             p = inputParser;
-            p.addOptional('maxiter',1e5);
-            p.addOptional('tol',1e-8);
+            p.addOptional('maxiter',1e4);
+            p.addOptional('tol',1e-8,@(x) isnumeric(x) && x<1 && x>0);
             p.addOptional('xtrue',[]);
+            p.addOptional('randinit',false,@islogical);
             p.parse(varargin{:});
             opts = p.Results;
+            if nargout > 3, trackihist = 1; else trackihist = 0; end
             
             % Extract data from obj
             R = obj.R;
@@ -122,8 +124,10 @@ classdef tensorpr3
             Gamma = 1 / (1+gamma);
             xcur = zeros(n,1); % this allows us to keep v = 1/n :-)
             xcur = xcur + v; 
+            if opts.randinit, xcur = rand(n,1); xcur=xcur/sum(xcur); end
             
             hist = zeros(niter, 1);
+            if trackihist, ihist = zeros(n, niter); end
             
             for i=1:niter
                 % TODO make this iteration better
@@ -131,23 +135,29 @@ classdef tensorpr3
                 z = y * Gamma + Gamma*(1-sum(y))*v;
                 xn = z + (1-sum(z))*xcur;
                 
-                curdiff = norm(xn - xcur, 1);
-                hist(i) = curdiff;
+                if trackihist, ihist(:,i) = xn; end
+                
+                curdiff = norm(xcur - xn,1);
+                curres = norm(obj.residual(xn), 1);
+                hist(i) = curres;
+                
                 if ~isempty(opts.xtrue)
                     hist(i) = norm(xn - opts.xtrue,inf);
                 end
                 
-                % check for termination
-                if curdiff <= tol
-                    break;
-                end
-                
                 % switch solutions
                 xcur = xn;
+                
+                % check for termination
+                if curres <= tol || curdiff <= tol/10;
+                    break;
+                end                
             end
             
             hist = hist(1:i,:);
-            if i == niter && curdiff > tol
+            if trackihist, ihist = ihist(:, 1:i); end
+            
+            if i == niter && curres > tol
                 warning('tensorpr3:notConverged',...
                     'did not converge after %i iterations to %e tolerance',...
                     niter, tol);
@@ -156,18 +166,20 @@ classdef tensorpr3
                 flag = 1;
             end
             
-            x = xn ./ sum(xn);
+            x = xcur ./ sum(xcur);
         end
         
-        function [x, hist, flag] = inverseiter(obj, varargin)
+        function [x, hist, flag, ihist] = inverseiter(obj, varargin)
             % INVERSEITER solve the tensorpr3 iteration using an inverse iteration
             
             p = inputParser;
-            p.addOptional('maxiter',1e5);
+            p.addOptional('maxiter',1e4);
             p.addOptional('tol',1e-8);
             p.addOptional('xtrue',[]);
+            p.addOptional('randinit',false,@islogical);
             p.parse(varargin{:});
             opts = p.Results;
+            if nargout > 3, trackihist = 1; else trackihist = 0; end
             
             % Extract data from obj
             R = obj.R;
@@ -179,8 +191,11 @@ classdef tensorpr3
             tol = opts.tol;
             xcur = zeros(n,1);
             xcur = xcur + v;
+            if opts.randinit, xcur = rand(n,1); xcur=xcur/sum(xcur); end
+            
             
             hist = zeros(niter, 1);
+            if trackihist, ihist = zeros(n, niter); end
             
             I = eye(n);
             
@@ -191,21 +206,25 @@ classdef tensorpr3
                 xn = A \ b;
                 xn = xn ./ norm(xn, 1);
                 
-                curdiff = norm(xn - xcur, 1);
-                hist(i) = curdiff;
+                if trackihist, ihist(:,i) = xn; end
+                
+                curdiff = norm(xcur - xn,1);
+                curres = norm(obj.residual(xn), 1);
+                hist(i) = curres;
                 
                 if ~isempty(opts.xtrue), hist(i) = norm(xn - opts.xtrue,inf); end
                 
-                if curdiff <= tol
+                xcur = xn;
+                
+                if curres <= tol || curdiff <= tol/10;
                     break
                 end
-           
-                xcur = xn;
             end
             
             
             hist = hist(1:i, :);
-            if i == niter && curdiff > tol
+            if trackihist, ihist = ihist(:, 1:i); end
+            if i == niter && curres > tol
                 warning('tensorpr3:notConverged',...
                     'did not converge after %i iterations to %e tolerance',...
                     niter, tol);
@@ -214,20 +233,21 @@ classdef tensorpr3
                 flag = 1;
             end
             
-            x = xn;
+            x = xcur;
         end
         
         
-        function [x, hist, flag] = newton(obj, varargin)
+        function [x, hist, flag, ihist] = newton(obj, varargin)
             % NEWTON Solve the tensorpr3 iteration using Newton's method
             
             p = inputParser;
-            p.addOptional('maxiter',1e5);
+            p.addOptional('maxiter',1e4);
             p.addOptional('tol',1e-8);
             p.addOptional('xtrue',[]);
-            p.addOptional('randInit', 0);
+            p.addOptional('randinit',false,@islogical);
             p.parse(varargin{:});
             opts = p.Results;
+            if nargout > 3, trackihist = 1; else trackihist = 0; end
             
             % Extract data from obj
             R = obj.R;
@@ -237,37 +257,37 @@ classdef tensorpr3
             
             niter = opts.maxiter;
             tol = opts.tol;
-            xcur = zeros(n,1);
-            if opts.randInit ~= 0
-                xcur = rand(n, 1);
-                xcur = xcur ./ sum(xcur);
-            else
-                xcur = xcur + v;
-            end
+            xcur = zeros(n,1) + v;
+            if opts.randinit, xcur = rand(n,1); xcur=xcur/sum(xcur); end
             
             hist = zeros(niter, 1);
+            if trackihist, ihist = zeros(n, niter); end
             
             I = eye(n);
             for i = 1:niter
                 A = a*R*(kron(xcur, I) + kron(I, xcur)) - I;
-                b = a*R*kron(xcur, xcur) - (1-a)*v; % residual
+                b = a*R*kron(xcur, xcur) - (1-a)*v; 
                 xn = A \ b;
                 xn = xn ./ sum(xn);
                 
-                curdiff = norm(xn - xcur, 1);
-                hist(i) = curdiff;
+                if trackihist, ihist(:,i) = xn; end
+                
+                curdiff = norm(xcur - xn,1);
+                curres = norm(obj.residual(xn), 1);
+                hist(i) = curres;
                 
                 if ~isempty(opts.xtrue), hist(i) = norm(xn - opts.xtrue,inf); end
                 
-                if curdiff <= tol
-                    break
-                end
-           
                 xcur = xn;
+                
+                if curres <= tol || curdiff <= tol/10;
+                    break
+                end 
             end
             
             hist = hist(1:i, :);
-            if i == niter && curdiff > tol
+            if trackihist, ihist = ihist(:, 1:i); end
+            if i == niter && curres > tol
                 warning('tensorpr3:notConverged',...
                     'did not converge after %i iterations to %e tolerance',...
                     niter, tol);
@@ -276,20 +296,22 @@ classdef tensorpr3
                 flag = 1;
             end
             
-            x = xn;
+            x = xcur;
         end
     
-        function [x, hist, flag] = innout(obj, varargin)
+        function [x, hist, flag, ihist] = innout(obj, varargin)
             % INNOUT Solve via an inner-outer iteration
             
             p = inputParser;
-            p.addOptional('maxiter',1e5);
+            p.addOptional('maxiter',1e4);
             p.addOptional('tol',1e-8);
             p.addOptional('xtrue',[]);
+            p.addOptional('randinit',false,@islogical);
             p.parse(varargin{:});
             opts = p.Results;
             niter = opts.maxiter;
             tol = opts.tol;
+            if nargout > 3, trackihist = 1; else trackihist = 0; end
             
             % Extract data from obj
             R = obj.R;
@@ -299,34 +321,44 @@ classdef tensorpr3
             
             Rt = a*R + (1-a)*v*ones(1, n^2);
             at = a / 2;
-            xt = v;
+            x = v;
+            if opts.randinit, x = rand(n,1); x=x/sum(x); end
+            
+            if trackihist, ihist = zeros(n, niter); end
             hist = zeros(niter, 1);
             for i = 1:niter
-                xt = xt ./ sum(xt);
-                Tr = tensorpr3(Rt, at, xt);
-                xt2 = Tr.solve('tol',tol/10);
-                curdiff = norm(obj.residual(xt2), 1);
-                hist(i) = curdiff;
+                Tr = tensorpr3(Rt, at, x);
+                %xn = Tr.solve('tol',max(tol,eps(1)));
+                xn = Tr.solve('tol',min(sqrt(tol),1e-2));
+                xn = xn/sum(xn);
+                
+                if trackihist, ihist(:,i) = xn; end
+                
+                curdiff = norm(x - xn,1);
+                curres = norm(obj.residual(xn), 1);
+                hist(i) = curres;
                 if ~isempty(opts.xtrue)
                     hist(i) = norm(xt2 - opts.xtrue,inf);
-                end
+                end               
+                
+                % switch solutions
+                x = xn;
                 
                 % check for termination
-                if curdiff <= tol
+                if curres <= tol || curdiff <= tol/10;
                     break;
                 end
-                % switch solutions
-                xt = xt2;                
             end
             hist = hist(1:i,:);
-            if i == niter && curdiff > tol
-                warning('did not converge');
+            if trackihist, ihist = ihist(:, 1:i); end
+            if i == niter && curres > tol
+                warning('tensorpr3:notConverged',...
+                    'did not converge after %i iterations to %e tolerance',...
+                    niter, tol);
                 flag = 0;
             else
                 flag = 1;
             end
-            
-            x = xt2;
         end
         
         function [P,MR] = markov(obj)
