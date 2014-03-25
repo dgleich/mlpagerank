@@ -1,0 +1,5 @@
+% This experiment shows that the marginals for the 
+% higher order PageRank vector, the tensor PageRank,
+% and the PageRank vector are equivalent if the tensor
+% is "really" hiding the matrix, .e.g
+% R = kron(R,e')
