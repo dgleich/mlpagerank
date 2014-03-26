@@ -1,7 +1,7 @@
 function triangle_plot_lambda2(name,R,alpha,v,gamma)
 %% Compute the solution trajectories.
-[xtrue1,xhist1] = tensorRank(alpha,R,v,v,0);
-[xtrueg,xhistg] = tensorRank(alpha,R,v,v,gamma);
+[xtrue1,~,~,xhist1] = tensorpr3(R,alpha,v).shifted(0);
+[xtrueg,~,~,xhistg] = tensorpr3(R,alpha,v).shifted(gamma);
 
 %% Setup the simplex sampling.
 [T,S,X,C] = simplex_samples(100);

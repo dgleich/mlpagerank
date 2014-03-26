@@ -374,7 +374,7 @@ classdef tensorpr3
             n = size(obj.R,1);
             e = ones(n,1);
             MR = obj.alpha * obj.R + (1-obj.alpha)*(obj.v * kron(e',e'));
-            P = reshape(obj.R,n,n,n);
+            P = reshape(MR,n,n,n);
         end
     
         function P = markov2(obj)
