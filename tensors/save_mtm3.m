@@ -1,3 +1,4 @@
+function save_mtm3
 %% Save the initial set of tensors into mtm3
 R3_mats = {};
 R3_1 = [1/3 1/3 1/3  1/3 0  0   0 0 0
@@ -15,10 +16,17 @@ R3_3 = [ 0 1/2 0  1/2  0  1    1/2 1/2  0
          1 1/2 1  1/2 1/2 0    1/2  0   1  ];
 R3_mats{end+1} = 'R3_3'; 
 
+% This problem 
 R3_4 = [0.0000  0.0000  1/3  1/3  0.0000  0.0000  0.5000  0.5000  0.5000
         0.0000  0.0000  1/3  1/3  0.0000  0.0000  0.0000  0.0000  0.5000
         1.0000  1.0000  1/3  1/3  1.0000  1.0000  0.5000  0.5000  0.0000];
-R3_mats{end+1} = 'R3_4';    
+R3_mats{end+1} = 'R3_4';   
+
+% This problem does not converge using Newton's iteration
+R3_5 = [0 0 0 0 0 0 1 0 1
+        0 0 0 0 1 1 0 1 0
+        1 1 1 1 0 0 0 0 0];
+R3_mats{end+1} = 'R3_5';
 
 %% Compute the 
 for i = 1:numel(R3_mats) 
