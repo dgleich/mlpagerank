@@ -1,4 +1,4 @@
-function h = iterplot(name,iters,maxiter,printlegend)
+function h = iterplot(name,iters,maxiter,flag,printlegend)
 
 xmax = maxiter;
 if maxiter > size(iters,2)
@@ -10,6 +10,11 @@ xlim([1,xmax]);
 set(gca,'LineWidth',0.85);
 set(gca,'FontSize',10);
 ylim([0,1]);
+ctext = 'Converged';
+if ~flag
+    ctext = 'Did not converge';
+end
+text(1,1,ctext,'HorizontalAlignment','left','VerticalAlignment','top');
 if printlegend
     legtext = cellstr(num2str((1:n)'));
     legend(legtext{:},'Location','OutsideWest');

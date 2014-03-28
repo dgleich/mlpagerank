@@ -19,3 +19,5 @@ Z(abs(Z) < 2*eps(1)) = 0;
 for i=1:size(Z,2)
     Z(:,i) = Z(:,i)/sum(Z(:,i));
 end
+
+

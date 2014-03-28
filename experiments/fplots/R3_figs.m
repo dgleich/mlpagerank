@@ -31,15 +31,15 @@ for i=1:numel(mats.R3_mats)
     set_figure_size([2.5,0.5]);
     print(gcf,'R3_legend.eps','-depsc2');
     
-    iterplot(mat,[v xhist1],maxiter,0);
+    iterplot(mat,[v xhist1],maxiter,0,0);
     print(gcf,sprintf('%s-fixed.eps',mat),'-depsc2');
-    iterplot(mat,[v xhistg],maxiter,0);
+    iterplot(mat,[v xhistg],maxiter,0,0);
     print(gcf,sprintf('%s-shifted.eps',mat),'-depsc2');
-    iterplot(mat,[v xhisti],maxiter,0);
+    iterplot(mat,[v xhisti],maxiter,0,0);
     print(gcf,sprintf('%s-inverse.eps',mat),'-depsc2');
-    iterplot(mat,[v xhistn],maxiter,0);
+    iterplot(mat,[v xhistn],maxiter,0,0);
     print(gcf,sprintf('%s-newton.eps',mat),'-depsc2');
-    iterplot(mat,[v xhistio],maxiter,0);
+    iterplot(mat,[v xhistio],maxiter,0,0);
     print(gcf,sprintf('%s-innout.eps',mat),'-depsc2');
 
     smap = triangle_plot_lambda2(mat,R,alpha,v);
