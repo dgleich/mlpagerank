@@ -26,14 +26,15 @@ for i=1:numel(subset)
 
     %%
     smap = tetrahedron_plot_lambda2(mat,tpr);
-    myplot = @(x,varargin) plot(x(1,:),x(2,:),varargin{:},'LineWidth',1.5);
-%     g.CameraPosition = [-1.2959 -0.5791 8.9030];
-%     g.CameraTarget = [0.5000 0.5000 0.5000];
-%     g.CameraUpVector = [0 0 1];
-%     g.CameraUpVectorMode = 'auto';
-% 	g.CameraViewAngle = 10.3808;
-%     set(gca,g);
-    view(45,-50);
+    myplot = @(x,varargin) plot3(x(1,:),x(2,:),x(3,:),varargin{:},'LineWidth',2.5);
+    
+        g.CameraPosition=[-3.2843 -10.4299 -6.2602];
+          g.CameraTarget=[0.0990 -0.1826 0.2364];
+        g.CameraUpVector=[0 0 1];
+    g.CameraUpVectorMode='manual';
+       g.CameraViewAngle=5.8808;
+       set(gca,g);
+    colorbar off;
     hold all;
     %%
     h = myplot(smap([v xhistg]),'g-');
@@ -51,6 +52,7 @@ for i=1:numel(subset)
     h = myplot(smap([v xhisti]),'g-');
     print(gcf,sprintf('%s-jac-inverse.eps',mat),'-depsc2');
     set(h,'Visible','off');
+    %%
     hold off;
     
     

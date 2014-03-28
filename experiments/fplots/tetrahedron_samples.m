@@ -1,6 +1,6 @@
 function [T,X,Z,C] = tetrahedron_samples(n)
 
-T = [1 0 0 1; 0 1 0 1; 0 0 1 1];
+T = simplex_coordinates1(3);
 Z = tetrahedron_grid(n, T, 1); % just let Matlab allocate it
 %% vertices at the origin
 C = [T(:, 1) - T(:,4) T(:,2)-T(:,4) T(:,3)-T(:,4)];

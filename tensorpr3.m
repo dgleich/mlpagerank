@@ -173,7 +173,7 @@ classdef tensorpr3
             % INVERSEITER solve the tensorpr3 iteration using an inverse iteration
             
             p = inputParser;
-            p.addOptional('maxiter',1e4);
+            p.addOptional('maxiter',1e3);
             p.addOptional('tol',1e-8,@(x) isnumeric(x) && x<1 && x>0);
             p.addOptional('xtrue',[]);
             p.addOptional('randinit',false,@islogical);
@@ -241,7 +241,7 @@ classdef tensorpr3
             % NEWTON Solve the tensorpr3 iteration using Newton's method
             
             p = inputParser;
-            p.addOptional('maxiter',1e4);
+            p.addOptional('maxiter',1e3);
             p.addOptional('tol',1e-8,@(x) isnumeric(x) && x<1 && x>0);
             p.addOptional('xtrue',[]);
             p.addOptional('randinit',false,@islogical);
@@ -303,7 +303,7 @@ classdef tensorpr3
             % INNOUT Solve via an inner-outer iteration
             
             p = inputParser;
-            p.addOptional('maxiter',1e4);
+            p.addOptional('maxiter',1e3);
             p.addOptional('tol',1e-8,@(x) isnumeric(x) && x<1 && x>0);
             p.addOptional('xtrue',[]);
             p.addOptional('randinit',false,@islogical);
@@ -328,8 +328,9 @@ classdef tensorpr3
             hist = zeros(niter, 1);
             for i = 1:niter
                 Tr = tensorpr3(Rt, at, x);
-                %xn = Tr.solve('tol',max(tol,eps(1)));
-                xn = Tr.solve('tol',min(sqrt(tol),1e-2));
+                % It seems like we need these solutions
+                % quite accurate
+                xn = Tr.solve('tol',max(tol/10,eps(1)));
                 xn = xn/sum(xn);
                 
                 if trackihist, ihist(:,i) = xn; end

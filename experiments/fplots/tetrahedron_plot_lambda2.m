@@ -21,16 +21,22 @@ ind = find(nj>0);
 P = X(:,ind); % points to plot
 vnj = nj(ind); % values nj
 hold on;
-plot3([0 0 1 0 1 1 1 0], [0 1 1 0 0 1 0 1], [1 0 1 1 0 1 0 0], 'k--');
-scatter3(P(1,:), P(2,:), P(3,:), 25, vnj, 'filled');
+h = trimesh([1 2 3; 1 2 4; 1 3 4; 2 3 4], T(1,:), T(2,:), T(3,:),[0,0,0,0]);
+set(h,'FaceColor','none');
+set(h,'EdgeColor','k');
+hs = scatter3(P(1,:), P(2,:), P(3,:), 25, vnj, 'filled');
 cmapsetup_large;
 %caxis([0 0.75]);
 colorbar;
 
 axis off;
 axis tight;
-axis square;
 axis equal;
+
+view([-19.3592,-30.3143]);
+camtarget([0,0,0]);
+camzoom(2);
+
 
 title(sprintf('%s max = %f\n', name, max(nj)), 'FontSize', 12, ...
     'Interpreter','none');
