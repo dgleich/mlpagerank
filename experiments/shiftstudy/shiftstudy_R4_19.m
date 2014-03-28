@@ -23,4 +23,4 @@ plot(convflag)
 
 xg=tpr.shifted('maxiter',100000);
 %%
-xg=tpr.shifted(2/3,'maxiter',100000);
+xg=tpr.shifted(1/2+eps(1),'maxiter',100000);
