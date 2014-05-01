@@ -41,3 +41,7 @@ for i = 1:numel(R3_mats)
 end
 %% Save
 save('mtm3.mat',R3_mats{:},'R3_mats','R3_Properties'); 
+
+%% Add exact solutions
+add_exact('mtm3.mat');
+

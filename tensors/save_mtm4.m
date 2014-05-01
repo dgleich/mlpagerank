@@ -27,3 +27,6 @@ for i = 1:numel(R4_mats)
 end
 %%
 save('mtm4.mat',R4_mats{:},'R4_mats','R4_Properties'); 
+
+%% Add exact solutions
+add_exact('mtm4.mat');
