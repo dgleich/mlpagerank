@@ -265,6 +265,11 @@ classdef tensorpr3
             
             I = eye(n);
             for i = 1:niter
+                % This iteration is equivalent to Newton's method
+                % for a fixed point g(x) - x = 0.
+                % where the iteration is (J(x) - I) x_{k+1} = J(x)*x -
+                % g(x),
+                % which for this form
                 A = a*R*(kron(xcur, I) + kron(I, xcur)) - I;
                 b = a*R*kron(xcur, xcur) - (1-a)*v; 
                 xn = A \ b;
