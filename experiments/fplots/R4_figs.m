@@ -34,6 +34,9 @@ for i=1:numel(subset)
     g.CameraUpVectorMode='manual';
        g.CameraViewAngle=5.8808;
        set(gca,g);
+       lighting gouraud
+     camlight
+
     colorbar off;
     hold all;
     %%
@@ -55,11 +58,4 @@ for i=1:numel(subset)
     %%
     hold off;
     
-    
-%     smap = triangle_plot_kappa(mat,R,alpha,v);
-%     hold all;
-%     myplot(smap([v xhist1]),'g-');
-%     myplot(smap([v xhistg]),'r-','Color',[1,0.4,0.6]);
-%     hold off;
-%     print(gcf,sprintf('%s-kappa.eps',mat),'-depsc2');
 end

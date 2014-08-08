@@ -20,6 +20,10 @@ set(h,'EdgeColor','k');
 %scatter3(P(1,:), P(2,:), P(3,:), 25, vnj, 'filled');
 cmapsetup_large
 
+%% Try a Delauney surface
+DT = delaunay(P');
+tetramesh(DT,P');
+
 %% compute the function value for the volume
 P = X; % points to plot
 vnj = sum(smap(S).*smap(S));
@@ -40,6 +44,37 @@ camzoom(1.5);
 camlight headlight;
 lighting gouraud
 
-%scatter3(P(1,:), P(2,:), P(3,:), 25, vnj, 'filled');
+scatter3(P(1,:), P(2,:), P(3,:), 25, vnj, 'filled');
 cmapsetup_large
 
+%% Try an isosurface
+P = X; % points to plot
+vnj = sum(smap(S).*smap(S));
+%thresh = 0.4;
+%P = X(:,vnj >thresh);
+%vnj = vnj(vnj > thresh);
+clf; hold on;
+
+[xg,yg,zg] = meshgrid(-1 : 0.05 : 1);
+% Create the interpolating object
+F = TriScatteredInterp(P(1,:)',P(2,:)',P(3,:)', vnj');
+% Do the interpolation
+eg = F(xg,yg,zg);
+% Now you can use isosurface with the gridded data
+patch(isosurface(xg,yg,zg,eg>=thresh,thresh));
+lighting gouraud
+camlight
+
+%% Try scatter with transparency
+P = X; % points to plot
+vnj = max(S);
+thresh = 0.8;
+P = X(:,vnj >thresh);
+vnj = vnj(vnj > thresh);
+clf; hold on;
+hs = scatter3(P(1,:), P(2,:), P(3,:), 25, vnj);
+h = trimesh([1 2 3; 1 2 4; 1 3 4; 2 3 4], T(1,:), T(2,:), T(3,:),[0,0,0,0]);
+set(h,'FaceColor','none');
+set(h,'EdgeColor','k');
+%scatter3(P(1,:), P(2,:), P(3,:), 25, vnj, 'filled');
+cmapsetup_large

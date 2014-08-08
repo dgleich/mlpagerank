@@ -17,14 +17,24 @@ end
 clf;
 hold all;
 
-ind = find(nj>0);
+ind = find(nj>=0);
 P = X(:,ind); % points to plot
 vnj = nj(ind); % values nj
 hold on;
 h = trimesh([1 2 3; 1 2 4; 1 3 4; 2 3 4], T(1,:), T(2,:), T(3,:),[0,0,0,0]);
 set(h,'FaceColor','none');
 set(h,'EdgeColor','k');
-hs = scatter3(P(1,:), P(2,:), P(3,:), 25, vnj, 'filled');
+%hs = scatter3(P(1,:), P(2,:), P(3,:), 25, vnj, 'filled');
+%p = patch(isosurface(P(1,:),P(2,:),P(3,:),0));
+
+[xg,yg,zg] = meshgrid(-1 : 0.025 : 1);
+% Create the interpolating object
+F = TriScatteredInterp(X(1,:)',X(2,:)',X(3,:)', nj);
+% Do the interpolation
+eg = F(xg,yg,zg);
+% Now you can use isosurface with the gridded data
+patch(isosurface(xg,yg,zg,eg>=0,0));
+
 cmapsetup_large;
 %caxis([0 0.75]);
 colorbar;

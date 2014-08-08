@@ -209,7 +209,8 @@ for i=1:10
 end 
 
 %% Okay, test our final convergence bound
-for ai=linspace(0,0.5,1000)
+for ai=linspace(0,0.5,10000)
+    a = ai;
     f = (1-a);
     fk = [];
     for i=1:25
@@ -221,10 +222,35 @@ for ai=linspace(0,0.5,1000)
         %c = (a*theta - 1)/(2*theta);
         c = max(1-2*a,2*a);
         gk = min(theta*(c)^(2^i),(1/4)^(i-1)*(1-a)^2*a);
-        if gk < f, 
+        if gk < (1-sqrt(eps))*f, 
             s = '****'; 
             fprintf('%.3f  %4i  %.20f  %.20f  %.20f %s\n', a, i, f, gk, (1/4)^(i-1)*(1-a)^2*a, s);
         end
         %fprintf('%4i  %.20f  %.20f\n', i, f, (1-2*a)^2/(a)*((1-2*a)^(2^(i))));
     end
+end
+
+%% Try a relationship based on the quadratic equation
+a = 0.49;
+f = (1-a);
+fk = [];
+for i=1:25
+    finit = f;
+    f = a*f^2/((1-2*a)^2 + 4*a*f);
+    fk(i) = f;
+    s = '';
+    %gk = (1-a)^2*(2*a)^(2^i);
+    theta = a/((1-2*a)^2);
+    %c = (a*theta - 1)/(2*theta);
+    c = max(1-2*a,2*a);
+    %gk = min(theta*(c)^(2^i),(1/4)^(i-1)*(1-a)^2*a);
+    gk = (-(1-2*a)^2 - sqrt((1-2*a)^4 + 16*a^2*finit^2))/(8*a);
+    if gk < (1-sqrt(eps))*f, 
+        s = '****'; 
+    else
+        s = '';
+    end
+    fprintf('%.3f  %4i  %.20f  %.20f  %.20f %s\n', a, i, f, gk, 1, s);
+   
+    %fprintf('%4i  %.20f  %.20f\n', i, f, (1-2*a)^2/(a)*((1-2*a)^(2^(i))));
 end

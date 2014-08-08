@@ -2,7 +2,7 @@ function R4_figs_iters
 %% Load data
 mats = load('../../tensors/mtm4.mat');
 alpha = 0.99;
-gamma = 2/3;
+gamma = 1/2;
 maxiter = 150;
 n = 4;
 v = ones(n,1)/n;
