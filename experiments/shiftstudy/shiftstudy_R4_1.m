@@ -13,7 +13,7 @@ convflag = zeros(ng,1);
 
 for i=1:ng
     [x,hist,flag] = tpr.shifted(gammas(i),'maxiter',1000);
-    convflag(i) = 1;
+    convflag(i) = flag;
 end
 plot(convflag)
     
