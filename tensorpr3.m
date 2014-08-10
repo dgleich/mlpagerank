@@ -78,6 +78,16 @@ classdef tensorpr3
                 [varargout{1:nargout}] = obj.innout(varargin{:});
             end
         end
+        
+        function varargout = power(obj,varargin)
+            % POWER Run the power method (no shift) on a tensor PageRank problem
+            %
+            %   This function just called [x...] = shifted(P,0,...)
+            %
+
+            [varargout{1:nargout}] = shifted(obj,0,varargin{:});
+        end
+            
             
         
         function [x,hist,flag, ihist] = shifted(obj,varargin)
