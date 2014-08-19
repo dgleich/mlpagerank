@@ -10,7 +10,7 @@ probs = [M.R3_mats M.R4_mats M.R6_mats];
 Props = combine_structs(M.R3_Properties, M.R4_Properties, M.R6_Properties);
 
 alphas = [0.2 0.4 0.499 0.7 0.85 0.9 0.95 0.99];
-methods = { {'snewton', @(tpr) newton(tpr)}, 
+methods = { {'snewton', @(tpr) newton_simple(tpr)}, 
             {'nonorm', @(tpr) newton_nonorm(tpr)},
             {'nonorm0', @(tpr) newton_nonorm(tpr,'x0',0)} };
 

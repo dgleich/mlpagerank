@@ -12,7 +12,7 @@ Props = combine_structs(M.R3_Properties, M.R4_Properties, M.R6_Properties);
 maxiter = 5000;
 
 alphas = [0.2 0.4 0.499 0.7 0.85 0.9 0.95 0.99];
-methods = { {'snewton', @(tpr) newton(tpr,'maxiter',maxiter)}, 
+methods = { {'snewton', @(tpr) newton_simple(tpr,'maxiter',maxiter)}, 
             {'newton_prox', @(tpr) newton_prox(tpr,'maxiter',maxiter)},
             {'newton_project', @(tpr) newton_project(tpr,'maxiter',maxiter)} };
 
