@@ -271,7 +271,7 @@ classdef tensorpr3
             
             niter = opts.maxiter;
             tol = opts.tol;
-            xcur = zeros(n,1) + v;
+            xcur = zeros(n,1) + (1-a)*v;
             if opts.randinit, xcur = rand(n,1); xcur=xcur/sum(xcur); end
             if ~isempty(opts.x0), xcur = zeros(n,1) + opts.x0; end
             
@@ -290,6 +290,7 @@ classdef tensorpr3
                 A = a*R*(kron(xcur, I) + kron(I, xcur)) - I;
                 b = a*R*kron(xcur, xcur) - (1-a)*v; 
                 xn = A \ b;
+                xn = max(xn,0);
                 xn = xn ./ sum(xn);
                 
                 if trackihist, ihist(:,i) = xn; end
