@@ -23,10 +23,12 @@ for i=1:numel(subset)
     [~,~,~,xhisti] = tpr.inverseiter;
     [~,~,~,xhistn] = tpr.newton;
     [~,~,~,xhistio] = tpr.innout;
+    
 
     %%
-    smap = tetrahedron_plot_lambda2(mat,tpr);
-    myplot = @(x,varargin) plot3(x(1,:),x(2,:),x(3,:),varargin{:},'LineWidth',2.5);
+    clf;
+    [smap,vh] = tetrahedron_plot_lambda2_vol(mat,tpr);
+    myplot = @(x,varargin) plot3(x(1,:),x(2,:),x(3,:),varargin{:},'LineWidth',1.5);
     
         g.CameraPosition=[-3.2843 -10.4299 -6.2602];
           g.CameraTarget=[0.0990 -0.1826 0.2364];
@@ -36,24 +38,31 @@ for i=1:numel(subset)
        set(gca,g);
        lighting gouraud
      camlight
+     
+     set_figure_size([3,3]);
 
     colorbar off;
     hold all;
+    vol3d(vh);
     %%
     h = myplot(smap([v xhistg]),'g-');
-    print(gcf,sprintf('%s-jac-shifted.eps',mat),'-depsc2');
+    export_fig(sprintf('%s-jac-shifted.png',mat),'-r300','-a4','-transparent')
+    %print(gcf,sprintf('%s-jac-shifted.eps',mat),'-depsc2');
     set(h,'Visible','off');
     %%
     h = myplot(smap([v xhistn]),'g-');
-    print(gcf,sprintf('%s-jac-newton.eps',mat),'-depsc2');
+    export_fig(sprintf('%s-jac-newton.png',mat),'-r300','-a4','-transparent')
+    %print(gcf,sprintf('%s-jac-newton.eps',mat),'-depsc2');
     set(h,'Visible','off');
     %%
     h = myplot(smap([v xhistio]),'g-');
-    print(gcf,sprintf('%s-jac-innout.eps',mat),'-depsc2');
+    export_fig(sprintf('%s-jac-innout.png',mat),'-r300','-a4','-transparent')
+    %print(gcf,sprintf('%s-jac-innout.eps',mat),'-depsc2');
     set(h,'Visible','off');
     %%
     h = myplot(smap([v xhisti]),'g-');
-    print(gcf,sprintf('%s-jac-inverse.eps',mat),'-depsc2');
+    export_fig(sprintf('%s-jac-inverse.png',mat),'-r300','-a4','-transparent')
+    %print(gcf,sprintf('%s-jac-inverse.eps',mat),'-depsc2');
     set(h,'Visible','off');
     %%
     hold off;

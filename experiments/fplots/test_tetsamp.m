@@ -78,3 +78,32 @@ set(h,'FaceColor','none');
 set(h,'EdgeColor','k');
 %scatter3(P(1,:), P(2,:), P(3,:), 25, vnj, 'filled');
 cmapsetup_large
+
+%% Try using the volume visualization tool
+amap = eg>=thresh;
+vol3d('CData',eg,'XData',xg,'YData',yg,'ZData',zg,'Alpha',eg.^2,'texture','3D');
+axis off;
+alphamap('rampdown')
+cmapsetup_large
+
+%% Try using a Delauney triangulation and the trimesh option
+DT = DelaneyTri(X');
+%%
+vnj = sum(smap(S).*smap(S));
+trimesh(DT,X(1,:),X(2,:),X(3,:),X(1,:));
+
+%%
+[T,S,X,C] = tetrahedron_samples(3);
+Xt = X';
+Xt = flipud(Xt);
+DT = DelaunayTri(Xt);
+tetramesh(DT,'FaceColor','cyan');
+
+%%
+
+[T,S,X,C] = tetrahedron_samples(3);
+vnj = sum(smap(S).*smap(S));
+[~,p] = sort(vnj,'descend');
+Xt = X(:,p)';
+Dt = DelaunayTri(Xt);
+tetramesh(Dt,'FaceColor','cyan');

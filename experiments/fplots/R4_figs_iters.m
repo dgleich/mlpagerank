@@ -6,19 +6,22 @@ gamma = 1/2;
 maxiter = 150;
 n = 4;
 v = ones(n,1)/n;
+niter = 20000;
+subset = mats.R4_mats;
+subset = {'R4_12','R4_17','R4_18','R4_19'};
 %%
-for i=1:numel(mats.R4_mats)
+for i=1:numel(subset)
     %%
-    mat = mats.R4_mats{i};
+    mat = subset{i};
     R = mats.(mat);
         
     tpr = tensorpr3(R,alpha,v);
     
-    [~,~,flag1,xhist1] = tpr.shifted(0);
-    [~,~,flagg,xhistg] = tpr.shifted(gamma);
-    [~,~,flagi,xhisti] = tpr.inverseiter;
-    [~,~,flagn,xhistn] = tpr.newton;
-    [~,~,flagio,xhistio] = tpr.innout;
+    [~,~,flag1,xhist1] = tpr.shifted(0,'maxiter',20000);
+    [~,~,flagg,xhistg] = tpr.shifted(gamma,'maxiter',20000);
+    [~,~,flagi,xhisti] = tpr.inverseiter('maxiter',2000);
+    [~,~,flagn,xhistn] = tpr.newton('maxiter',2000);
+    [~,~,flagio,xhistio] = tpr.innout('maxiter',2000);
     
     clf;
     h = plot([1 1],[1 1],'-',[1 1],[1 1],'-',[1 1],[1 1],'-',[1 1],[1 1],'-',...

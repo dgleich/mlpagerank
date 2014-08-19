@@ -12,11 +12,11 @@ for i=1:numel(mats.R3_mats)
     mat = mats.R3_mats{i};
     R = mats.(mat);
     
-    [~,~,~,xhist1] = tensorpr3(R,alpha,v).shifted(0);
-    [~,~,~,xhistg] = tensorpr3(R,alpha,v).shifted(gamma);
-    [~,~,~,xhisti] = tensorpr3(R,alpha,v).inverseiter;
-    [~,~,~,xhistn] = tensorpr3(R,alpha,v).newton;
-    [~,~,~,xhistio] = tensorpr3(R,alpha,v).innout;
+    [~,~,flag1,xhist1] = tensorpr3(R,alpha,v).shifted(0);
+    [~,~,flagg,xhistg] = tensorpr3(R,alpha,v).shifted(gamma);
+    [~,~,flagi,xhisti] = tensorpr3(R,alpha,v).inverseiter;
+    [~,~,flagn,xhistn] = tensorpr3(R,alpha,v).newton;
+    [~,~,flagio,xhistio] = tensorpr3(R,alpha,v).innout;
     
     clf;
     h = plot([1 1],[1 1],'-',[1 1],[1 1],'-',[1 1],[1 1],'-','LineWidth',1.5);
@@ -31,15 +31,15 @@ for i=1:numel(mats.R3_mats)
     set_figure_size([2.5,0.5]);
     print(gcf,'R3_legend.eps','-depsc2');
     
-    iterplot(mat,[v xhist1],maxiter,0,0);
+    iterplot(mat,[v xhist1],maxiter,flag1,0);
     print(gcf,sprintf('%s-fixed.eps',mat),'-depsc2');
-    iterplot(mat,[v xhistg],maxiter,0,0);
+    iterplot(mat,[v xhistg],maxiter,flagg,0);
     print(gcf,sprintf('%s-shifted.eps',mat),'-depsc2');
-    iterplot(mat,[v xhisti],maxiter,0,0);
+    iterplot(mat,[v xhisti],maxiter,flagi,0);
     print(gcf,sprintf('%s-inverse.eps',mat),'-depsc2');
-    iterplot(mat,[v xhistn],maxiter,0,0);
+    iterplot(mat,[v xhistn],maxiter,flagn,0);
     print(gcf,sprintf('%s-newton.eps',mat),'-depsc2');
-    iterplot(mat,[v xhistio],maxiter,0,0);
+    iterplot(mat,[v xhistio],maxiter,flagio,0);
     print(gcf,sprintf('%s-innout.eps',mat),'-depsc2');
 
     smap = triangle_plot_lambda2(mat,R,alpha,v);
