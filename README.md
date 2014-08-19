@@ -37,11 +37,12 @@ Description:
 The code repository computes the eigenvector of the high-order Markov chains.
 Formally, the problem is to solve the non-linear system of the following form,
 
-
+    alpha R (x kron x) + (1-alpha) v = x, or
+    alpha * R * kron(x,x) + (1-alpha) * v == x (in Matlab syntax)
 
 where x is the solution of the high-order eigen-problem, R the n x n^2
-transition matrix (derived from 3 dimensional tensor transition), alpha damping
-factor 0 \< alpha \< 1, and v the personalized vector.
+transition matrix (derived from 3 dimensional tensor transition), alpha is 
+a damping factor 0 \< alpha \< 1, and v is a the localization vector.
 
 In order to solve the problem efficiently, the following 3 algorithms are
 considered.

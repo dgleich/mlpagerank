@@ -118,6 +118,7 @@ classdef tensorpr3
             p.addOptional('tol',1e-8,@(x) isnumeric(x) && x<1 && x>0);
             p.addOptional('xtrue',[]);
             p.addOptional('randinit',false,@islogical);
+            p.addOptional('x0',[]);
             p.parse(varargin{:});
             opts = p.Results;
             if nargout > 3, trackihist = 1; else trackihist = 0; end
@@ -135,6 +136,7 @@ classdef tensorpr3
             xcur = zeros(n,1); % this allows us to keep v = 1/n :-)
             xcur = xcur + v; 
             if opts.randinit, xcur = rand(n,1); xcur=xcur/sum(xcur); end
+            if ~isempty(opts.x0), xcur = zeros(n,1) + opts.x0; end
             
             hist = zeros(niter, 1);
             if trackihist, ihist = zeros(n, niter); end
@@ -187,6 +189,7 @@ classdef tensorpr3
             p.addOptional('tol',1e-8,@(x) isnumeric(x) && x<1 && x>0);
             p.addOptional('xtrue',[]);
             p.addOptional('randinit',false,@islogical);
+            p.addOptional('x0',[]);
             p.parse(varargin{:});
             opts = p.Results;
             if nargout > 3, trackihist = 1; else trackihist = 0; end
@@ -202,7 +205,7 @@ classdef tensorpr3
             xcur = zeros(n,1);
             xcur = xcur + v;
             if opts.randinit, xcur = rand(n,1); xcur=xcur/sum(xcur); end
-            
+            if ~isempty(opts.x0), xcur = zeros(n,1) + opts.x0; end
             
             hist = zeros(niter, 1);
             if trackihist, ihist = zeros(n, niter); end
@@ -254,6 +257,7 @@ classdef tensorpr3
             p.addOptional('maxiter',1e3);
             p.addOptional('tol',1e-8,@(x) isnumeric(x) && x<1 && x>0);
             p.addOptional('xtrue',[]);
+            p.addOptional('x0',[]);
             p.addOptional('randinit',false,@islogical);
             p.parse(varargin{:});
             opts = p.Results;
@@ -269,6 +273,7 @@ classdef tensorpr3
             tol = opts.tol;
             xcur = zeros(n,1) + v;
             if opts.randinit, xcur = rand(n,1); xcur=xcur/sum(xcur); end
+            if ~isempty(opts.x0), xcur = zeros(n,1) + opts.x0; end
             
             hist = zeros(niter, 1);
             if trackihist, ihist = zeros(n, niter); end
@@ -280,6 +285,8 @@ classdef tensorpr3
                 % where the iteration is (J(x) - I) x_{k+1} = J(x)*x -
                 % g(x),
                 % which for this form
+                
+                
                 A = a*R*(kron(xcur, I) + kron(I, xcur)) - I;
                 b = a*R*kron(xcur, xcur) - (1-a)*v; 
                 xn = A \ b;
@@ -322,6 +329,7 @@ classdef tensorpr3
             p.addOptional('tol',1e-8,@(x) isnumeric(x) && x<1 && x>0);
             p.addOptional('xtrue',[]);
             p.addOptional('randinit',false,@islogical);
+            p.addOptional('x0',[]);
             p.parse(varargin{:});
             opts = p.Results;
             niter = opts.maxiter;
@@ -338,6 +346,7 @@ classdef tensorpr3
             at = a / 2;
             x = v;
             if opts.randinit, x = rand(n,1); x=x/sum(x); end
+            if ~isempty(opts.x0), x = zeros(n,1) + opts.x0; end
             
             if trackihist, ihist = zeros(n, niter); end
             hist = zeros(niter, 1);
