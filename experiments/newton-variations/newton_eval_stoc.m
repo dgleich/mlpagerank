@@ -13,8 +13,11 @@ maxiter = 5000;
 
 alphas = [0.2 0.4 0.499 0.7 0.85 0.9 0.95 0.99];
 methods = { {'snewton', @(tpr) newton_simple(tpr,'maxiter',maxiter)}, 
-            {'newton_prox', @(tpr) newton_prox(tpr,'maxiter',maxiter)},
-            {'newton_project', @(tpr) newton_project(tpr,'maxiter',maxiter)} };
+            {'snewton_1mav', @(tpr) newton_simple(tpr,'maxiter',maxiter, 'x0',(1-tpr.alpha)*tpr.v)}, 
+            {'newton_prox_v', @(tpr) newton_prox(tpr,'maxiter',maxiter,'x0',tpr.v)},
+            {'newton_prox_1mav', @(tpr) newton_prox(tpr,'maxiter',maxiter,'x0',(1-tpr.alpha)*tpr.v)}, 
+            {'newton_project_v', @(tpr) newton_project(tpr,'maxiter',maxiter, 'x0', tpr.v)},
+            {'newton_proj_1mav', @(tpr) newton_project(tpr,'maxiter',maxiter, 'x0', (1-tpr.alpha)*tpr.v)} };
 
 %%
 fprintf('%10s  %5s  %15s  %10s\n', 'problem', 'alpha', 'method','result');
@@ -32,7 +35,7 @@ for pi=1:numel(probs)
             mfunc = methods{mi}{2};
             [X(:,mi),~,flag] = mfunc(tpr);
             if flag==1, result='success'; else result='failed ***'; end;
-            fprintf('%10s  %5.2f  %15s  %8.1e  %8.1e  %-10s\n',...
+            fprintf('%10s  %5.2f  %20s  %8.1e  %8.1e  %-10s\n',...
                 prob, alphas(ai), mname, norm(tpr.residual(X(:,mi)),1), sum(X(:,mi)), result);
             results(pi,ai,mi) = flag;
         end
