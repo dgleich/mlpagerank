@@ -59,20 +59,32 @@ semilogy(hist); drawnow;
 [x,hist,flag] = tpr.shifted(0.995,'maxiter',niter);
 semilogy(hist); drawnow;
 
-%% 
+%% Final figure
 clf; hold all; set(gca,'YScale','log'); set(gca,'XScale','log');
-gammas = fliplr([0.55 0.551 0.552 0.553 0.554 0.5545 0.555 0.56 0.65 0.995]);
+gammas = fliplr([0.50 0.553 0.554 0.5545 0.555 0.56 0.65 0.995]);
 ng = numel(gammas);
 niter = 1e6;
 nskip = 200;
 for i=1:ng
     [x,hist,flag] = tpr.shifted(gammas(i),'maxiter',niter);
+    lasthist = [numel(hist) hist(end)];
     hist = hist(1:nskip*floor(numel(hist)/nskip));
     %semilogy(hist); hold on;
     meanhist = mean(reshape(hist,nskip,numel(hist)/nskip));
     xmeanhist = nskip/2:nskip:numel(hist); % x coordinates of mean hist
+    meanhist(end+1) = lasthist(2);
+    xmeanhist(end+1) = lasthist(1);
     semilogy([1:(nskip/2-1) xmeanhist], [hist(1:(nskip/2-1))' meanhist]); 
     drawnow;
 end
+%%
+ylim([1e-6,1]);
+xlabel('Residual');
+box off;
+ylabel('Iteration');
+legend(cellstr(num2str(gammas')),'Location','Southwest');
+legend boxoff;
 
-ylim([1e-5,1]);
+%%
+set_figure_size([5,3]);
+print(gcf,'shiftstudy_R4_19.eps','-depsc2');
