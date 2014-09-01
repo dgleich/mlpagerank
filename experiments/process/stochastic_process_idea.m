@@ -171,7 +171,7 @@ Xhist(1:n) = 1:n;
 Xhist(n+1) = X;
 
 for i=n+2:N
-    if mod(i,Nhist/10)
+    if mod(i,Nhist/10)==0
         fprintf('%g entries\n', i);
     end
     if rand > alpha % then teleport
