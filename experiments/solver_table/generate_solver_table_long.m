@@ -9,7 +9,7 @@ probs = [M.R3_mats M.R4_mats M.R6_mats];
 Props = combine_structs(M.R3_Properties, M.R4_Properties, M.R6_Properties);
 %%
 alphas = [0.7 0.85 0.9 0.95 0.99];
-methods = {'power','shifted','newton','innout','inverseiter'};
+methods = {'power','shifted','innout','inverseiter','newton'};
 niters = [100000,100000,10000,10000,10000];
 
 %% Solver table 1, number of problems that converge with default settings
