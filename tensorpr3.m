@@ -110,7 +110,7 @@ classdef tensorpr3
                 gamma = varargin{1};
                 varargin = varargin(2:end);
             else
-                gamma = 0.5;
+                gamma = 1;
             end
             
             p = inputParser;
