@@ -1,8 +1,7 @@
 Multilinear PageRank
 ====================
 
-### David F. Gleich
-### Yongyang Yu (yu163@purdue.edu)
+#### David F. Gleich (@dgleich), Lek-Heng Lim, Yongyang Yu (@yuyongyang800)
 
 The third order multilinear PageRank vector is the solution of:
 
