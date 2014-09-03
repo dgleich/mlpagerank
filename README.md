@@ -13,7 +13,7 @@ that models the stationary distribution of a spacey random surfer.
 
 The multilinear PageRank vector is also a "tensor PageRank" vector 
 
-Synposis
+Synopsis
 --------
 
     load tensors/mtm3.mat
