@@ -51,3 +51,15 @@ z = TPR.innout();
 assert(norm(x - xpr)<3*1e-8, 'failed on prtest diff=%e',norm(x-xpr));
 z = TPR.innout('tol',eps(1));
 assert(norm(z - xpr)<10*eps(1), 'failed on high-precision prtest');
+
+%%
+rng(1);
+P = rand(3,9);
+R = P*diag(1./sum(P));
+TPR = tensorpr3(R,0.45);
+[xhist,thist] = TPR.dynsys('h',1);
+
+P = rand(3,9);
+R = P*diag(1./sum(P));
+TPR = tensorpr3(R,0.45);
+[xhist,thist] = TPR.dynsys('h',0.1);

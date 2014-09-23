@@ -387,6 +387,137 @@ classdef tensorpr3
             end
         end
         
+        function [xhist,thist,hist] = dynsys(obj, varargin)
+            % DYNSYS Solve via the reinforced random walk dynamical system
+            
+            p = inputParser;
+            p.addOptional('maxiter',1e5);
+            p.addOptional('tol',1e-8,@(x) isnumeric(x) && x<1 && x>0);
+            p.addOptional('randinit',false,@islogical);
+            p.addOptional('x0',[]);
+            p.addOptional('method','euler');
+            p.addOptional('h',0.1);
+            p.parse(varargin{:});
+            opts = p.Results;
+            niter = opts.maxiter;
+            tol = opts.tol;
+            trackihist = 1;
+            
+            % Extract data from obj
+            R = obj.R;
+            n = size(R,1);
+            a = obj.alpha;
+            v = obj.v;
+            h = opts.h;
+            
+            xcur = zeros(n,1);
+            xcur = xcur + v;
+            if opts.randinit, xcur = rand(n,1); xcur=xcur/sum(xcur); end
+            if ~isempty(opts.x0), xcur = zeros(n,1) + opts.x0; end
+            
+            switch opts.method
+                case {'euler','feuler','forward'}
+                    
+                    hist = zeros(niter, 1);
+                    ihist = zeros(n, niter); 
+
+                    I = eye(n);
+                    
+                    for i=1:niter
+                        A = kron(xcur, I);
+                        A = I - a*R*A;
+                        b = (1-a)*v;
+                        xn = A \ b;
+                        xn = xn ./ norm(xn, 1);
+                        xn = h*xn + (1-h)*xcur;
+
+                        ihist(:,i) = xn;
+
+                        curdiff = norm(xcur - xn,1);
+                        curres = norm(obj.residual(xn), 1);
+                        hist(i) = curres;
+
+                        xcur = xn;
+
+                        if curres <= tol || curdiff <= tol/10;
+                            break
+                        end
+                    end
+                    
+                    thist = (1:i)*h;
+                    hist = hist(1:i, :);
+                    xhist = ihist(:, 1:i);
+                    
+                case 'ode45'
+                    [thist,xhist] = ode45(@(t,x) obj.markov_residual(x),...
+                                        [0,niter*h], ones(n,1)/n, ...
+                                        struct('Events',...
+                                            @(t,y) obj.dynsys_stop_event(t,y,tol),...
+                                            'RelTol',tol,'AbsTol',tol));
+                    xhist = xhist'; % organize data by columns
+                    hist = zeros(numel(thist),1);
+                    for i = 1:size(xhist,2)
+                        hist(i) = norm(obj.residual(xhist(:,i)),1);
+                    end
+                    
+            end
+        end
+        
+        function [value,isterminal,direction] = dynsys_stop_event(obj,t,x,tol)
+            value = max(norm(obj.residual(x),1) - tol,0);
+            isterminal = value <= 0;
+            direction = 0;
+        end
+        
+        function r = markov_residual(obj,x)
+            % MARKOV_RESIDUAL Compute the residual for the Markov chain
+            %
+            % The reinforced random walk models show that the stochastic
+            % process converges to a stationary distribution if the flow 
+            % of the dynamical system:
+            %    dx/dt = (1-alpha) (I - alpha R*kron(x,I)) \ v - x
+            % converges from x(0) = 1/n ones(n,1)
+            %
+            % We call the difference: 
+            %    (1-alpha) (I - alpha R*kron(x,I)) \ v - x
+            % the Markov residual.
+            
+            n = size(x,1);
+            a = obj.alpha;
+            
+            A = kron(x, eye(n));
+            A = eye(n) - a*obj.R*A;
+            
+            if a ~= 1
+                b = (1-a)*obj.v;
+                xn = A \ b;
+            else
+                %X = null(A);
+                % code from null(A) so we can customize
+                [~,S,V] = svd(A,0);
+                if n > 1, s = diag(S);
+                elseif n == 1, s = S(1);
+                end
+                tol = n * max(s) * eps(class(A));
+                r = sum(s > tol); % number of non-zero singular values
+                if n-r > 1
+                    % pick the closest to zero
+                    error('non-unique stationary distribution');
+                elseif r == n
+                    r = n-1;
+                end
+                X = V(:,r+1:n);
+                if size(X,2) > 1
+                    error('non-unique stationary distribution');
+                end
+                xn = X(:,1);
+                xn = xn*sign(xn(1)); % make sure it's positive
+            end
+            xn = xn / norm(xn, 1);
+            
+            r = xn - x;
+        end
+        
         function [P,MR] = markov(obj)
             % MARKOV Return the tensors and matrices for the modified Markov chain 
             %
