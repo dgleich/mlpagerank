@@ -482,6 +482,10 @@ classdef tensorpr3
             %    (1-alpha) (I - alpha R*kron(x,I)) \ v - x
             % the Markov residual.
             
+            if any(~isfinite(x))
+                error;
+            end
+            
             n = size(x,1);
             a = obj.alpha;
             

@@ -9,6 +9,13 @@ function search_tensors(n,f,name,varargin)
 % And we always update the restart file after we find something. This is
 % designed to search for tensors with some type of rare property.
 %
+% Options:
+%    'checkpoint' : save a result every k steps (default 100000)
+%    'filter' : provide a function to quickly filter out a problem
+%    'max' : the largest integer considered, the default is 1, so we look
+%       for binary tensors, if max=2, then we look at all tensors with 
+%       non-negative integers 0, 1, 2.
+%
 % Simple example:
 %   f = @(T) sum(T(:))>=7
 %   search_tensors(2,f,'dense');
@@ -26,6 +33,7 @@ p = inputParser;
 p.addOptional('randomize',false);
 p.addOptional('checkpoint',100000);
 p.addOptional('filter', @(T) true);
+p.addOptional('max',1);
 p.parse(varargin{:});
 opts = p.Results;
 
@@ -35,7 +43,7 @@ if exist(checkname,'file')
     load(checkname)
 else
     N = n^3;
-    bins = 2*ones(N,1);
+    bins = (opts.max+1)*ones(N,1);
     cur = subset_enumerate(bins);
     iter = 1;
     found = [];
