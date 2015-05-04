@@ -61,15 +61,15 @@ else
     iter = 1;
     found = [];
     nfound = 0;
-end
 
-if opts.useperm
-    perm=randperm(N);
-    %iperm(perm)=1:N;
-else
-    perm = 1:N;
-    %iperm = 1:N;
-end
+    if opts.useperm
+        perm=randperm(N);
+        %iperm(perm)=1:N;
+    else
+        perm = 1:N;
+        %iperm = 1:N;
+    end
+end    
 
 reverse = opts.reverse;
 

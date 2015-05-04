@@ -43,7 +43,7 @@ if ~isempty(opts.x0), xcur = zeros(n,1) + opts.x0; end
 hist = zeros(niter, 1);
 if trackihist, ihist = zeros(n, niter); end
 
-tvec = (R*kron(kron(xcur, xcur), xcur)); 
+tvec = (R*kron(kron(xcur, xcur), kron(xcur,xcur))); 
     
 
 for i=1:niter
@@ -53,7 +53,7 @@ for i=1:niter
 
     if trackihist, ihist(:,i) = xn; end
     
-    tvec = (R*kron(kron(xn, xn), xn)); 
+    tvec = (R*kron(kron(xn, xn), kron(xn,xn))); 
     
 
     curdiff = norm(xcur - xn,1);
