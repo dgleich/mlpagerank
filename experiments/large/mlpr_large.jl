@@ -90,14 +90,15 @@ function trimult(n::Int64,tris::Array{Int64,2},norms::Array{Int64,1},x::Array{Fl
     return y
 end
 
-function mlpr_cycles(n::Int64, tris::Array{Int64,2}, alpha::Float64;tol::Float64=1e-16)
+function mlpr_cycles(n::Int64, A::SparseMatrixCSC{Float64,Int64}, 
+    tris::Array{Int64,2}, alpha::Float64;
+    tol::Float64=1e-16, shift::Float64=0., maxiter::Int64=1000,
+    beta::Float64=0.5)
     verbose=true
-    maxiter=1000
-    shift = 0.
     
     # compute the data we need
     (colnorms,M) = get_norms(n,tris)
-    degm = sum(M,2)
+    degs = sum(A,2)
     
     v = ones(n)/n
     x = copy(v)
@@ -106,15 +107,23 @@ function mlpr_cycles(n::Int64, tris::Array{Int64,2}, alpha::Float64;tol::Float64
     niter = 0
     
     for iter=1:maxiter
+        # we are going to use the following three-way tensor
+        # 0.5*Markov M + 0.5*triangles
+        # 
         y = trimult(n,tris,colnorms,x);
         sumy = sum(y)
-        #z = M'*(vec(x)./vec(degm))
-        #sumz = sum(z)
-        #z = z + (1-sumz)*v
-        #y = y + (1-sumy)*z
-        #y = z + 0.
         y = y + (1-sumy)*v
         
+        
+        z = A'*(vec(x)./vec(degs))
+        sumz = sum(z)
+        z = z + (1-sumz)*v
+
+        #y = y + (1-sumy)*z
+        #y = z + 0.
+
+        y = beta*y + (1-beta)*z       
+ 
         y = alpha*y + (1-alpha)*v;
     
         hist[iter] = norm(y-x,1);
@@ -139,15 +148,37 @@ end
     
     
 
-function mlpr_cycles(G::SparseMatrixCSC{Float64,Int64},alpha::Float64)
+function mlpr_cycles(G::SparseMatrixCSC{Float64,Int64},alpha::Float64, beta::Float64)
     n = G.n
     
     # compute the data we need
     tris = tricycles(G)
 
-    return mlpr_cycles(n,tris,alpha)    
+    return mlpr_cycles(n,A,tris,alpha;beta=beta)    
 end
     
 A = readSMAT("wiki-Talk.smat")
 @printf("Done reading...\n");
-(x,hist) = mlpr_cycles(A,0.99)
+(x,hist) = mlpr_cycles(A,0.99,0.5)
+
+alphas=[0.5 0.85 0.99]
+betas=[0.5 0.85 0.99]
+niter = zeros(length(alphas),length(betas))
+
+for ai=eachindex(alphas)
+    for bi=eachindex(betas)
+        alpha = alphas[ai]
+        beta = betas[bi]
+        (x,hist) = mlpr_cycles(A,alpha,beta)
+        niter[ai,bi] = length(hist)
+    end
+end
+
+@printf("n nodes: %i\n", size(A,1))
+@printf("nnz in tricycles: %i\n",maximum(size(tricycles(A))))
+
+
+for ai=eachindex(alphas)
+    @printf("%.2f & %s \\\\ \n", alphas[ai],
+        join([@sprintf("%i",x) for x in niter[ai,:]]," & "))
+end
