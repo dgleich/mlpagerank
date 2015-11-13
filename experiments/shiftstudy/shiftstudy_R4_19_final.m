@@ -27,9 +27,9 @@ for i=1:ng
     i
 end
 %%
-save 'results_R4_19.mat' niter nskip gammas ng R alpha
+save 'results_R4_19_fixed.mat' Results niter nskip gammas ng R alpha
 %%
-load results_R4_19
+load results_R4_19_fixed
 clf; hold all; set(gca,'YScale','log'); set(gca,'XScale','log');
 for i=1:ng
     h=plot(Results{i}{1},Results{i}{2});
@@ -52,9 +52,9 @@ end
 pos = get(gca,'Position'); pos(3) = pos(3)*0.95; pos(2) = pos(2)+0.05;
 set(gca,'Position',pos);
 ylim([1e-6,1]);
-xlabel('Residual');
+xlabel('Iteration');
 box off;
-ylabel('Iteration');
+ylabel('Residual');
 
 
 set_figure_size([5,3]);
