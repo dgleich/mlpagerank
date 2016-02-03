@@ -516,7 +516,7 @@ classdef tensorpr3
                 end
                 xn = X(:,1);
                 % make sure it's positive
-		        [~, max_abs_ind] = max(abs(xn));
+                [~, max_abs_ind] = max(abs(xn));
                 xn = xn*sign(xn(max_abs_ind));
             end
             xn = xn / norm(xn, 1);
