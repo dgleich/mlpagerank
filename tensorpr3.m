@@ -515,7 +515,9 @@ classdef tensorpr3
                     error('non-unique stationary distribution');
                 end
                 xn = X(:,1);
-                xn = xn*sign(xn(1)); % make sure it's positive
+                % make sure it's positive
+		[~, max_abs_ind] = max(abs(xn));
+                xn = xn*sign(xn(max_abs_ind));
             end
             xn = xn / norm(xn, 1);
             
