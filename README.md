@@ -53,6 +53,14 @@ depends on the initial choice of x. We also found that problems that do not
 converge for non-shift iterative method will not converge for shifted iterative
 method either.
 
+Errata
+------
+
+The original code contains a bug in the convergence detection which 
+causes it detect convergence even when the iterate did not converge to
+a sufficiently small residual. Thanks to Federico Poloni for pointing
+this out. 
+
 Details
 --------    
 
