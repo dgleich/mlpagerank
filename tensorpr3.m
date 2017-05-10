@@ -169,9 +169,9 @@ classdef tensorpr3
             hist = hist(1:i,:);
             if trackihist, ihist = ihist(:, 1:i); end
             
-            if i == niter && curres > tol
+            if curres > tol
                 warning('tensorpr3:notConverged',...
-                    'did not converge after %i iterations to %e tolerance',...
+                    'did not converge (or stalled) after %i iterations to %e tolerance',...
                     niter, tol);
                 flag = 0;
             else
@@ -237,9 +237,9 @@ classdef tensorpr3
             
             hist = hist(1:i, :);
             if trackihist, ihist = ihist(:, 1:i); end
-            if i == niter && curres > tol
+            if curres > tol
                 warning('tensorpr3:notConverged',...
-                    'did not converge after %i iterations to %e tolerance',...
+                    'did not converge (or stalled) after %i iterations to %e tolerance',...
                     niter, tol);
                 flag = 0;
             else
@@ -310,9 +310,9 @@ classdef tensorpr3
             
             hist = hist(1:i, :);
             if trackihist, ihist = ihist(:, 1:i); end
-            if i == niter && curres > tol
+            if curres > tol
                 warning('tensorpr3:notConverged',...
-                    'did not converge after %i iterations to %e tolerance',...
+                    'did not converge (or stalled) after %i iterations to %e tolerance',...
                     niter, tol);
                 flag = 0;
             else
@@ -377,9 +377,9 @@ classdef tensorpr3
             end
             hist = hist(1:i,:);
             if trackihist, ihist = ihist(:, 1:i); end
-            if i == niter && curres > tol
+            if curres > tol
                 warning('tensorpr3:notConverged',...
-                    'did not converge after %i iterations to %e tolerance',...
+                    'did not converge (or stalled) after %i iterations to %e tolerance',...
                     niter, tol);
                 flag = 0;
             else

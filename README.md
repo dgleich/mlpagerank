@@ -59,7 +59,12 @@ Errata
 The original code contains a bug in the convergence detection which 
 causes it detect convergence even when the iterate did not converge to
 a sufficiently small residual. Thanks to Federico Poloni for pointing
-this out. 
+this out. The simax-version tagged version has the original code,
+which has subsequently been fixed to avoid this error. This affected
+the Newton iteration most strongly and caused it to misjudge convergence
+in 6/29 trials. The others were less affected. The codes
+`experiments/solver_table/generate_solver_table_long_fixed.m` show the corrected results,
+whereas `experiments/solver_table/generate_solver_long.m` show the original results. 
 
 Details
 --------    
